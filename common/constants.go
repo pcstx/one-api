@@ -69,6 +69,7 @@ var GitHubClientSecret = ""
 var WeChatServerAddress = ""
 var WeChatServerToken = ""
 var WeChatAccountQRCodeImageURL = ""
+var PushPlusApiUrl = "https://www.pushplus.plus/api"
 
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""

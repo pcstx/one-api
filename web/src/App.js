@@ -5,6 +5,7 @@ import User from './pages/User';
 import { PrivateRoute } from './components/PrivateRoute';
 import RegisterForm from './components/RegisterForm';
 import LoginForm from './components/LoginForm';
+import QrCodeLogin from './components/QrCodeLogin';
 import NotFound from './pages/NotFound';
 import Setting from './pages/Setting';
 import EditUser from './pages/User/EditUser';
@@ -211,7 +212,7 @@ function App() {
         path='/login'
         element={
           <Suspense fallback={<Loading></Loading>}>
-            <LoginForm />
+            <QrCodeLogin />
           </Suspense>
         }
       />
