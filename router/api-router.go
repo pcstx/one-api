@@ -31,9 +31,9 @@ func SetApiRouter(router *gin.Engine) {
 			userRoute.POST("/login", middleware.CriticalRateLimit(), controller.Login)
 			userRoute.GET("/logout", controller.Logout)
 			//获取pushplus登录二维码
-			userRoute.GET("/wechat/getQrcode", controller.QrCode)
-			userRoute.GET("/wechat/confirmLogin", controller.ConfirmLogin)
-			userRoute.GET("/wechatLogout", controller.WechatLogout)
+			userRoute.GET("/wechat/getQrcode", controller.PushplusController{}.QrCode)
+			userRoute.GET("/wechat/confirmLogin", controller.PushplusController{}.ConfirmLogin)
+			userRoute.GET("/wechatLogout", controller.PushplusController{}.WechatLogout)
 
 			selfRoute := userRoute.Group("/")
 			selfRoute.Use(middleware.UserAuth())

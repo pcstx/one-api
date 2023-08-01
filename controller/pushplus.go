@@ -11,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type PushplusController struct{}
+
 type Data struct {
 	QrCodeUrl string `json:"qrCodeUrl"`
 	QrCode    string `json:"qrCode"`
@@ -39,7 +41,7 @@ func getQrCodeUrl() (*Data, error) {
 }
 
 // 返回微信登录二维码
-func QrCode(c *gin.Context) {
+func (con PushplusController) QrCode(c *gin.Context) {
 	qrCodeUrl, err := getQrCodeUrl()
 	if err != nil {
 		common.Error(c, err.Error())
@@ -67,7 +69,7 @@ func getConfirmLogin(qrCode string) (string, error) {
 	return confirmLoginResponse.Data, nil
 }
 
-func ConfirmLogin(c *gin.Context) {
+func (con PushplusController) ConfirmLogin(c *gin.Context) {
 	qrCode := c.Query("key")
 	token, err := getConfirmLogin(qrCode)
 	if err != nil {
@@ -144,7 +146,7 @@ func weChatLogin(c *gin.Context, userInfo *UserInfo) {
 登录操作
 先调用pushplus登录接口
 */
-func WechatLogout(c *gin.Context) {
+func (con PushplusController) WechatLogout(c *gin.Context) {
 
 	//调用pushplus接口
 	loginOut(c)
