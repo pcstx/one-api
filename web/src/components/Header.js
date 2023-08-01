@@ -76,7 +76,7 @@ const Header = () => {
 
   async function logout() {
     setShowSidebar(false);
-    await API.get('/api/user/logout');
+    await API.get('/api/user/wechatLogout');
     showSuccess('注销成功!');
     userDispatch({ type: 'logout' });
     localStorage.removeItem('user');
