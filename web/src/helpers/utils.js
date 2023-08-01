@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { toastConstants } from '../constants';
+import { toastConstants, DOMAIN } from '../constants';
 
 export function isAdmin() {
   let user = localStorage.getItem('user');
@@ -178,3 +178,25 @@ export const verifyJSON = (str) => {
   }
   return true;
 };
+
+export const setCookie = (name, value) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  // Append the "domain" attribute to the cookie string
+  const cookieString = name + '=' + value + ';expires=' + expires.toUTCString() + ';domain=' + DOMAIN;
+
+  // Set the cookie using the document.cookie property
+  document.cookie = cookieString;
+}
+
+export const setCookieWithDomain = (name, value, days, domain) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+
+  // Append the "domain" attribute to the cookie string
+  const cookieString = name + '=' + value + ';expires=' + expires.toUTCString() + ';domain=' + domain;
+
+  // Set the cookie using the document.cookie property
+  document.cookie = cookieString;
+}

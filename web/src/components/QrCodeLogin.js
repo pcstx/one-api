@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { API, getLogo, showError, showSuccess } from '../helpers';
+import { API, getLogo, showError, showSuccess,setCookie } from '../helpers';
 
 const QrCodeLogin = () => {
   const [inputs, setInputs] = useState({
@@ -13,8 +13,11 @@ const QrCodeLogin = () => {
   const [searchParams, setSearchParams] = useSearchParams();  
   const [qrCodeUrl, setQrCodeUrl] = useState({});
   const [qrCode, setQrCode] = useState({});
+  const [userState, userDispatch] = useContext(UserContext);
+
   const logo = getLogo(); 
   let count = 5;
+  let navigate = useNavigate();
 
   useEffect(() => {
     if (searchParams.get('expired')) {
@@ -57,14 +60,18 @@ const QrCodeLogin = () => {
         `/api/user/wechat/confirmLogin?key=${qrCode}`
       );
       const { success, message, data } = res.data;
-      if (success) {
-        console.log(data);
-        //在cookie中创建key为pushToken，值为data内容
-        document.cookie = "pushToken=" + data + ";path=/";
+      if (success) { 
+        console.log("data:"+ data);
+        userDispatch({ type: 'login', payload: data });
+        localStorage.setItem('user', JSON.stringify(data));
+        navigate('/');
+        showSuccess('登录成功！'); 
+
         return true;
+      }else{
+        //showError(message);
+        return false;
       }
-      
-      return false;
   }
  
   return (

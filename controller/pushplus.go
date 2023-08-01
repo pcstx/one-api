@@ -1,21 +1,14 @@
 package controller
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"one-api/common"
-	"time"
+	"one-api/model"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
-
-type Response[T any] struct {
-	Code int    `json:"code"`
-	Msg  string `json:"msg"`
-	Data T      `json:"data"`
-}
 
 type Data struct {
 	QrCodeUrl string `json:"qrCodeUrl"`
@@ -23,46 +16,24 @@ type Data struct {
 }
 
 func getQrCodeUrl() (*Data, error) {
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/common/wechat/getQrcode", common.PushPlusApiUrl), nil)
-	if err != nil {
-		return &Data{}, err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
-	res, err := client.Do(req)
-	if err != nil {
-		common.SysLog(err.Error())
-		return &Data{}, errors.New("请求失败，请稍后重试！")
-	}
-	defer res.Body.Close()
-	var qrcodeResponse Response[Data]
-	err = json.NewDecoder(res.Body).Decode(&qrcodeResponse)
-	if err != nil {
-		return &Data{}, err
-	}
 
-	return &qrcodeResponse.Data, nil
+	url := fmt.Sprintf("%s/common/wechat/getQrcode", common.PushPlusApiUrl)
+	data, err := common.HttpGet[Data](url)
+	if err != nil {
+		return &Data{}, err
+	}
+	return &data.Data, nil
 }
 
 // 返回微信登录二维码
 func QrCode(c *gin.Context) {
 	qrCodeUrl, err := getQrCodeUrl()
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
+		common.Error(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "",
-		"success": true,
-		"data":    qrCodeUrl,
-	})
+	common.Success(c, qrCodeUrl)
 	return
 }
 
@@ -70,48 +41,65 @@ func getConfirmLogin(qrCode string) (string, error) {
 	if qrCode == "" {
 		return "", errors.New("无效的参数")
 	}
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/common/wechat/confirmLogin?key=%s&code=1001", common.PushPlusApiUrl, qrCode), nil)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	client := http.Client{
-		Timeout: 5 * time.Second,
-	}
-	res, err := client.Do(req)
-	if err != nil {
-		common.SysLog(err.Error())
-		return "", errors.New("请求失败，请稍后重试！")
-	}
-	defer res.Body.Close()
-	var confirmLoginResponse Response[string]
-	err = json.NewDecoder(res.Body).Decode(&confirmLoginResponse)
-	if err != nil {
-		common.SysLog(err.Error())
-		return "", err
-	}
-	fmt.Printf("返回内容：%v\n", &confirmLoginResponse)
 
+	url := fmt.Sprintf("%s/common/wechat/confirmLogin?key=%s&code=1001", common.PushPlusApiUrl, qrCode)
+	confirmLoginResponse, err := common.HttpGet[string](url)
+	if err != nil {
+		common.SysLog(err.Error())
+		return "", err
+	}
+	if confirmLoginResponse.Code == 500 {
+		return "", errors.New(confirmLoginResponse.Msg)
+	}
 	return confirmLoginResponse.Data, nil
 }
 
 func ConfirmLogin(c *gin.Context) {
 	qrCode := c.Query("key")
 	token, err := getConfirmLogin(qrCode)
-	fmt.Printf("token: %s\n", token)
 	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"success": false,
-			"message": "尚未登录",
-		})
+		common.Error(c, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "",
-		"success": true,
-		"data":    token,
-	})
+	//设置cookie，实现单点登录
+	c.SetCookie("pushToken", token, 7*3600*24, "/", common.PushPlusDomain, false, false)
+
+	//系统内的账号登录
+	weChatLogin(c, token)
 	return
+}
+
+func weChatLogin(c *gin.Context, wechatId string) {
+	user := model.User{
+		WeChatId: wechatId,
+	}
+	if model.IsWeChatIdAlreadyTaken(wechatId) {
+		err := user.FillUserByWeChatId()
+		if err != nil {
+			common.Error(c, err.Error())
+			return
+		}
+	} else {
+		if common.RegisterEnabled {
+			user.Username = "wechat_" + strconv.Itoa(model.GetMaxUserId()+1)
+			user.DisplayName = "WeChat User"
+			user.Role = common.RoleCommonUser
+			user.Status = common.UserStatusEnabled
+
+			if err := user.Insert(0); err != nil {
+				common.Error(c, err.Error())
+				return
+			}
+		} else {
+			common.Error(c, "管理员关闭了新用户注册")
+			return
+		}
+	}
+
+	if user.Status != common.UserStatusEnabled {
+		common.Error(c, "用户已被封禁")
+		return
+	}
+	setupLogin(&user, c)
 }

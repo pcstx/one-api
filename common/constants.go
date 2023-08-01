@@ -70,6 +70,7 @@ var WeChatServerAddress = ""
 var WeChatServerToken = ""
 var WeChatAccountQRCodeImageURL = ""
 var PushPlusApiUrl = "https://www.pushplus.plus/api"
+var PushPlusDomain = ".pushplus.plus"
 
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
