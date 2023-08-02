@@ -3,8 +3,9 @@ package model
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Redemption struct {
@@ -71,6 +72,39 @@ func Redeem(key string, userId int) (quota int, err error) {
 		return 0, errors.New("兑换失败，" + err.Error())
 	}
 	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过兑换码充值 %s", common.LogQuota(redemption.Quota)))
+	return redemption.Quota, nil
+}
+
+func Recharge(id int, userId int) (quota int, err error) {
+	if id == 0 {
+		return 0, errors.New("无效的id")
+	}
+	if userId == 0 {
+		return 0, errors.New("无效的 user id")
+	}
+	redemption := &Redemption{}
+
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		err := tx.Set("gorm:query_option", "FOR UPDATE").Where("`id` = ?", id).First(redemption).Error
+		if err != nil {
+			return errors.New("无效的id")
+		}
+		if redemption.Status != common.RedemptionCodeStatusEnabled {
+			return errors.New("已完成积分兑换")
+		}
+		err = tx.Model(&User{}).Where("id = ?", userId).Update("quota", gorm.Expr("quota + ?", redemption.Quota)).Error
+		if err != nil {
+			return err
+		}
+		redemption.RedeemedTime = common.GetTimestamp()
+		redemption.Status = common.RedemptionCodeStatusUsed
+		err = tx.Save(redemption).Error
+		return err
+	})
+	if err != nil {
+		return 0, errors.New("积分兑换失败，" + err.Error())
+	}
+	RecordLog(userId, LogTypeTopup, fmt.Sprintf("积分兑换 %s", common.LogQuota(redemption.Quota)))
 	return redemption.Quota, nil
 }
 

@@ -2,9 +2,6 @@ package main
 
 import (
 	"embed"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
-	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/controller"
 	"one-api/middleware"
@@ -12,6 +9,11 @@ import (
 	"one-api/router"
 	"os"
 	"strconv"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
+	"github.com/gin-gonic/gin"
 )
 
 //go:embed web/build
@@ -82,7 +84,13 @@ func main() {
 	server.Use(middleware.CORS())
 
 	// Initialize session store
-	store := cookie.NewStore([]byte(common.SessionSecret))
+
+	var store sessions.Store
+	if os.Getenv("REDIS_CONN_STRING") == "" {
+		store = cookie.NewStore([]byte(common.SessionSecret))
+	} else {
+		store, _ = redis.NewStore(10, "tcp", common.RDB.Options().Addr, common.RDB.Options().Password, []byte(common.SessionSecret))
+	}
 	server.Use(sessions.Sessions("session", store))
 
 	router.SetRouter(server, buildFS, indexPage)

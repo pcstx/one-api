@@ -30,6 +30,12 @@ type UserInfo struct {
 	Points      float32 `json:"points"`
 }
 
+type Recharge struct {
+	OutNumber string `json:"outNumber"`
+	Point     int    `json:"point"`
+	Token     string `json:"token"`
+}
+
 func getQrCodeUrl() (*Data, error) {
 
 	url := fmt.Sprintf("%s/common/wechat/getQrcode", common.PushPlusApiUrl)
@@ -168,4 +174,79 @@ func loginOut(c *gin.Context) {
 
 	url := fmt.Sprintf("%s/customer/login/loginOut", common.PushPlusApiUrl)
 	common.HttpGet[string](url, token)
+}
+
+func perkAIRecharge(recharge *Recharge) (int, error) {
+	url := fmt.Sprintf("%s/customer/userPoint/perkAIRecharge", common.PushPlusApiUrl)
+	result, err := common.HttpPost[int](url, recharge, recharge.Token)
+	if err == nil {
+		if result.Data <= 0 {
+			return result.Data, errors.New(result.Msg)
+		}
+	}
+
+	return result.Data, err
+}
+
+/**
+ * 充值接口
+ */
+func (con PushplusController) Recharge(c *gin.Context) {
+	var recharge Recharge
+
+	// 根据请求的Content-Type自动选择绑定器并将数据绑定到User结构体
+	if err := c.ShouldBind(&recharge); err != nil {
+		common.Error(c, "请求对象有误")
+		return
+	}
+
+	//服务端校验
+	if recharge.Point <= 0 {
+		common.Error(c, "积分不能小于0")
+		return
+	}
+
+	//获取请求token
+	session := sessions.Default(c)
+	token := session.Get("pushToken")
+	userId := session.Get("id")
+	recharge.Token = token.(string)
+
+	//生成流水号
+	recharge.OutNumber = common.GetUUID()
+	//积分与额度兑换比例为：1积分=500额度
+	quota := recharge.Point * 500
+	//记录到数据库中
+	redemption := model.Redemption{
+		UserId:      userId.(int),
+		Name:        "pushplus积分兑换",
+		Key:         recharge.OutNumber,
+		CreatedTime: common.GetTimestamp(),
+		Quota:       quota,
+	}
+	err := redemption.Insert()
+	if err != nil {
+		common.Error(c, err.Error())
+		return
+	}
+
+	result, err := perkAIRecharge(&recharge)
+	if err != nil {
+		common.Error(c, err.Error())
+		return
+	}
+
+	if result > 0 {
+		//结果入库,更新表状态，user表中增加积分
+		_, err := model.Recharge(redemption.Id, redemption.UserId)
+		if err != nil {
+			common.Error(c, err.Error())
+			return
+		}
+		common.Success(c, nil)
+		return
+	} else {
+		common.Error(c, "充值失败")
+		return
+	}
 }

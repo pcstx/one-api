@@ -55,7 +55,7 @@ func HttpGet[T any](url string, token ...interface{}) (*Response[T], error) {
 	return &response, nil
 }
 
-func HttpPost[T any](url string, postData interface{}) (*Response[T], error) {
+func HttpPost[T any](url string, postData interface{}, token ...interface{}) (*Response[T], error) {
 	buffer := bytes.NewBuffer(nil)
 	buffer = nil
 
@@ -76,6 +76,15 @@ func HttpPost[T any](url string, postData interface{}) (*Response[T], error) {
 			Code: 500,
 			Msg:  "请求参数异常",
 		}, err
+	}
+
+	// 添加Cookie到请求头
+	if len(token) > 0 {
+		cookie := &http.Cookie{
+			Name:  "pushToken",
+			Value: token[0].(string),
+		}
+		req.AddCookie(cookie)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
