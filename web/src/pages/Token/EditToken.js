@@ -135,10 +135,10 @@ const EditToken = () => {
               setExpiredTime(0, 0, 0, 1);
             }}>一分钟后过期</Button>
           </div>
-          <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
+          <Message>注意，令牌的配额仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
           <Form.Field>
             <Form.Input
-              label={`额度${renderQuotaWithPrompt(remain_quota)}`}
+              label={`配额${renderQuotaWithPrompt(remain_quota)}`}
               name='remain_quota'
               placeholder={'请输入额度'}
               onChange={handleInputChange}
@@ -150,7 +150,7 @@ const EditToken = () => {
           </Form.Field>
           <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
-          }}>{unlimited_quota ? '取消无限额度' : '设置为无限额度'}</Button>
+          }}>{unlimited_quota ? '取消无限配额' : '设置为无限配额'}</Button>
           <Button positive onClick={submit}>提交</Button>
         </Form>
       </Segment>

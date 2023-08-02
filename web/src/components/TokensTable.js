@@ -187,7 +187,7 @@ const TokensTable = () => {
                 sortToken('used_quota');
               }}
             >
-              已用额度
+              已用配额
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
@@ -195,7 +195,7 @@ const TokensTable = () => {
                 sortToken('remain_quota');
               }}
             >
-              剩余额度
+              剩余配额
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}

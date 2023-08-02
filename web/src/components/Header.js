@@ -32,7 +32,7 @@ let headerButtons = [
   },
   {
     name: '充值',
-    to: '/topup',
+    to: '/recharge',
     icon: 'cart'
   },
   {

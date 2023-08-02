@@ -25,6 +25,7 @@ import EditRedemption from './pages/Redemption/EditRedemption';
 import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
+import Recharge from './pages/Recharge';
 
 const Home = lazy(() => import('./pages/Home'));
 const About = lazy(() => import('./pages/About'));
@@ -256,6 +257,16 @@ function App() {
         <PrivateRoute>
           <Suspense fallback={<Loading></Loading>}>
             <TopUp />
+          </Suspense>
+        </PrivateRoute>
+        }
+      />
+      <Route
+        path='/recharge'
+        element={
+        <PrivateRoute>
+          <Suspense fallback={<Loading></Loading>}>
+            <Recharge />
           </Suspense>
         </PrivateRoute>
         }

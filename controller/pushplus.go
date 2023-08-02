@@ -243,7 +243,7 @@ func (con PushplusController) Recharge(c *gin.Context) {
 			common.Error(c, err.Error())
 			return
 		}
-		common.Success(c, nil)
+		common.Success(c, quota)
 		return
 	} else {
 		common.Error(c, "充值失败")
