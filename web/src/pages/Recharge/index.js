@@ -75,7 +75,7 @@ const Recharge = () => {
     <Segment>
       <Header as='h3'>积分兑换token</Header>
       <Grid columns={2} stackable>
-        <Grid.Column>
+        <Grid.Column width={5}>
           <Form>
             <Form.Input
               placeholder='积分'
@@ -111,7 +111,7 @@ const Recharge = () => {
             size='mini'
             />
         </Grid.Column>
-        <Grid.Column>
+        <Grid.Column width={11}>
           <Statistic.Group widths='three'>
             <Statistic>
               <Statistic.Value>{userPoint.toLocaleString()}</Statistic.Value>
