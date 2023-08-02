@@ -89,15 +89,28 @@ func (con PushplusController) ConfirmLogin(c *gin.Context) {
 	session.Set("pushToken", token)
 
 	//根据token获取pushplus中用户详情
-	userInfo, _ := getUserInfo(token)
+	userInfo, _ := getMyInfo(token)
 
 	//系统内的账号登录
 	weChatLogin(c, userInfo)
 	return
 }
 
+// 实时获取用户资料
 func getUserInfo(token string) (*UserInfo, error) {
 	url := fmt.Sprintf("%s/customer/user/userInfo", common.PushPlusApiUrl)
+	res, err := common.HttpGet[UserInfo](url, token)
+	if err != nil {
+		common.SysLog(err.Error())
+		return &UserInfo{}, err
+	}
+
+	return &res.Data, nil
+}
+
+// 获取用户资料（缓存中）
+func getMyInfo(token string) (*UserInfo, error) {
+	url := fmt.Sprintf("%s/customer/user/myInfo", common.PushPlusApiUrl)
 	res, err := common.HttpGet[UserInfo](url, token)
 	if err != nil {
 		common.SysLog(err.Error())

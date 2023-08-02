@@ -48,6 +48,7 @@ func SetApiRouter(router *gin.Engine) {
 
 				//积分兑换
 				selfRoute.POST("/recharge", controller.PushplusController{}.Recharge)
+				selfRoute.GET("/point", controller.GetPoint)
 			}
 
 			adminRoute := userRoute.Group("/")

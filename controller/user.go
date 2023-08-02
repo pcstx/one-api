@@ -17,6 +17,11 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type UserPoint struct {
+	Point int `json:"point"`
+	Quota int `json:"quota"`
+}
+
 func Login(c *gin.Context) {
 	if !common.PasswordLoginEnabled {
 		c.JSON(http.StatusOK, gin.H{
@@ -326,6 +331,40 @@ func GetSelf(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    user,
+	})
+	return
+}
+
+func GetPoint(c *gin.Context) {
+	id := c.GetInt("id")
+	quota, err := model.GetUserQuota(id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	session := sessions.Default(c)
+	token := session.Get("pushToken")
+	userInfo, err := getUserInfo(token.(string))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userPoint := UserPoint{
+		Point: int(userInfo.Points),
+		Quota: quota,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    userPoint,
 	})
 	return
 }
