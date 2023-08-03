@@ -87,12 +87,13 @@ func (con PushplusController) ConfirmLogin(c *gin.Context) {
 	c.SetCookie("pushToken", token, 7*3600*24, "/", common.PushPlusDomain, false, false)
 	session := sessions.Default(c)
 	session.Set("pushToken", token)
+	session.Save()
 
 	//根据token获取pushplus中用户详情
-	userInfo, _ := getMyInfo(token)
+	userInfo, _ := GetMyInfo(token)
 
 	//系统内的账号登录
-	weChatLogin(c, userInfo)
+	WeChatLogin(c, userInfo)
 	return
 }
 
@@ -109,7 +110,7 @@ func getUserInfo(token string) (*UserInfo, error) {
 }
 
 // 获取用户资料（缓存中）
-func getMyInfo(token string) (*UserInfo, error) {
+func GetMyInfo(token string) (*UserInfo, error) {
 	url := fmt.Sprintf("%s/customer/user/myInfo", common.PushPlusApiUrl)
 	res, err := common.HttpGet[UserInfo](url, token)
 	if err != nil {
@@ -120,7 +121,7 @@ func getMyInfo(token string) (*UserInfo, error) {
 	return &res.Data, nil
 }
 
-func weChatLogin(c *gin.Context, userInfo *UserInfo) {
+func WeChatLogin(c *gin.Context, userInfo *UserInfo) {
 	wechatId := userInfo.OpenId
 
 	user := model.User{

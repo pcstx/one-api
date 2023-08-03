@@ -70,6 +70,7 @@ func setupLogin(user *model.User, c *gin.Context) {
 	session.Set("username", user.Username)
 	session.Set("role", user.Role)
 	session.Set("status", user.Status)
+
 	err := session.Save()
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
