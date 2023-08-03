@@ -1,6 +1,10 @@
 package common
 
-import "github.com/gin-gonic/gin"
+import (
+	"strings"
+
+	"github.com/gin-gonic/gin"
+)
 
 func RemoveCookie(c *gin.Context, key string) {
 	domain := c.Request.Host
@@ -14,5 +18,9 @@ func AddCookie(c *gin.Context, key string, value string, maxAge int) {
 
 func AddPushToken(c *gin.Context, token string) {
 	domain := c.Request.Host
+	//domain中以.pushplus.plus结尾
+	if strings.HasSuffix(domain, ".pushplus.plus") {
+		domain = ".pushplus.plus"
+	}
 	c.SetCookie("pushToken", token, 7*3600*24, "/", domain, false, false)
 }
