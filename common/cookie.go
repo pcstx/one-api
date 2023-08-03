@@ -24,3 +24,12 @@ func AddPushToken(c *gin.Context, token string) {
 	}
 	c.SetCookie("pushToken", token, 7*3600*24, "/", domain, false, false)
 }
+
+func RemovePushToken(c *gin.Context) {
+	domain := c.Request.Host
+	//domain中以.pushplus.plus结尾
+	if strings.HasSuffix(domain, ".pushplus.plus") {
+		domain = ".pushplus.plus"
+	}
+	c.SetCookie("pushToken", "", -1, "/", domain, false, false)
+}

@@ -40,7 +40,7 @@ func authHelper(c *gin.Context, minRole int) {
 				controller.AuthLogin(c, userInfo)
 			} else {
 				//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
-				common.RemoveCookie(c, "pushToken")
+				common.RemovePushToken(c)
 				common.RemoveCookie(c, "session")
 				common.ClearSession(c)
 				c.JSON(http.StatusUnauthorized, gin.H{
