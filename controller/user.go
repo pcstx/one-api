@@ -86,6 +86,11 @@ func setupLogin(user *model.User, c *gin.Context) {
 		Role:        user.Role,
 		Status:      user.Status,
 	}
+
+	c.Set("username", user.Username)
+	c.Set("role", user.Role)
+	c.Set("id", user.Id)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",
 		"success": true,
