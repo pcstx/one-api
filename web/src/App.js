@@ -4,7 +4,6 @@ import Loading from './components/Loading';
 import User from './pages/User';
 import { PrivateRoute } from './components/PrivateRoute';
 import RegisterForm from './components/RegisterForm';
-import LoginForm from './components/LoginForm';
 import QrCodeLogin from './components/QrCodeLogin';
 import NotFound from './pages/NotFound';
 import Setting from './pages/Setting';

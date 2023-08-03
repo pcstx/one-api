@@ -32,10 +32,23 @@ func authHelper(c *gin.Context, minRole int) {
 		if id == nil {
 			//根据pushToken获取用户信息，再回写到session中
 			//等于登录逻辑
-			session.Set("pushToken", pushToken)
-			session.Save()
 			userInfo, _ := controller.GetMyInfo(pushToken)
-			controller.WeChatLogin(c, userInfo)
+			if userInfo != nil && userInfo.Id > 0 {
+				session.Set("pushToken", pushToken)
+				session.Save()
+				controller.WeChatLogin(c, userInfo)
+			} else {
+				c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
+				session := sessions.Default(c)
+				session.Clear()
+				session.Save()
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"success": false,
+					"message": "未登录或登录已过期，请重新登录！",
+				})
+				c.Abort()
+				return
+			}
 		}
 	} else {
 		//如果pushToken不存在，说明没有登录或者登录超时
