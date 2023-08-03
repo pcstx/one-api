@@ -8,7 +8,7 @@ import (
 
 func RemoveCookie(c *gin.Context, key string) {
 	domain := c.Request.Host
-	c.SetCookie("pushToken", "", -1, "/", domain, false, false)
+	c.SetCookie(key, "", -1, "/", domain, false, false)
 }
 
 func AddCookie(c *gin.Context, key string, value string, maxAge int) {
