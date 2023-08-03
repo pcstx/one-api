@@ -9,12 +9,13 @@ import (
 
 func RemoveCookie(c *gin.Context, key string) {
 	domain := c.Request.Host
+	fmt.Println("remove域名：" + domain)
 	c.SetCookie(key, "", -1, "/", domain, false, false)
 }
 
 func AddCookie(c *gin.Context, key string, value string, maxAge int) {
 	domain := c.Request.Host
-	fmt.Println("remove域名：" + domain)
+	fmt.Println("add域名：" + domain)
 	c.SetCookie(key, value, maxAge, "/", domain, false, false)
 }
 
@@ -24,7 +25,7 @@ func AddPushToken(c *gin.Context, token string) {
 	if strings.HasSuffix(domain, ".pushplus.plus") {
 		domain = ".pushplus.plus"
 	}
-	fmt.Println("add域名：" + domain)
+	fmt.Println("addpush域名：" + domain)
 	c.SetCookie("pushToken", token, 7*3600*24, "/", domain, false, false)
 }
 

@@ -234,7 +234,10 @@ func loginOut(c *gin.Context) {
 
 	fmt.Printf("退出时候获取token=%v\n", token)
 	url := fmt.Sprintf("%s/customer/login/loginOut", common.PushPlusApiUrl)
-	common.HttpGet[string](url, token)
+	_, err := common.HttpGet[string](url, token)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
 
 func perkAIRecharge(recharge *Recharge) (int, error) {
