@@ -3,6 +3,7 @@ import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } f
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess,setCookie } from '../helpers';
+import Loading from '../components/Loading';
 
 const QrCodeLogin = () => {
   const [inputs, setInputs] = useState({
@@ -91,7 +92,7 @@ const QrCodeLogin = () => {
         </Header>
         <Form>
           <Segment>
-            <Image src={qrCodeUrl} size='medium' hidden={!qrCodeUrl} verticalAlign='middle'/>
+          {qrCodeUrl && qrCodeUrl.length && qrCodeUrl.length>0 ?(<> <Image src={qrCodeUrl} size='medium' verticalAlign='middle'/></>):(<><Loading prompt={''}></Loading></>)}
             { isDivVisible && 
             <div  style={{backgroundColor: "rgba(255,255,255,.9)",
                 width: "100%",
