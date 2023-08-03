@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
@@ -12,6 +13,8 @@ import (
 func GetAllTokens(c *gin.Context) {
 
 	userId := c.GetInt("id")
+
+	fmt.Printf("userId=%v", userId)
 	p, _ := strconv.Atoi(c.Query("p"))
 	if p < 0 {
 		p = 0
