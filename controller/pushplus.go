@@ -186,6 +186,7 @@ func loginOut(c *gin.Context) {
 	session := sessions.Default(c)
 	token := session.Get("pushToken")
 
+	fmt.Printf("退出时候获取token=%v\n", token)
 	url := fmt.Sprintf("%s/customer/login/loginOut", common.PushPlusApiUrl)
 	common.HttpGet[string](url, token)
 }
