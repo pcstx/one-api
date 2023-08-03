@@ -3,10 +3,11 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 var timeFormat = "2006-01-02T15:04:05.000Z"
@@ -91,6 +92,7 @@ func GlobalAPIRateLimit() func(c *gin.Context) {
 }
 
 func CriticalRateLimit() func(c *gin.Context) {
+	//限制IP最大请求次数；单位是秒；120秒内20次请求；
 	return rateLimitFactory(common.CriticalRateLimitNum, common.CriticalRateLimitDuration, "CT")
 }
 
