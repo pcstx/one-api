@@ -24,7 +24,9 @@ func authHelper(c *gin.Context, minRole int) {
 		pushToken = c.GetHeader("pushToken")
 	}
 	if len(pushToken) <= 0 {
-		pushToken = session.Get("pushToken").(string)
+		if session.Get("pushToken") != nil {
+			pushToken = session.Get("pushToken").(string)
+		}
 	}
 
 	if len(pushToken) > 0 {
