@@ -29,6 +29,9 @@ func (con TestController) SetSession(c *gin.Context) {
 
 func (con TestController) ClearSession(c *gin.Context) {
 	session := sessions.Default(c)
+
+	session.Options(sessions.Options{MaxAge: -1})
+
 	session.Clear()
 	err := session.Save()
 	if err != nil {
