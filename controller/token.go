@@ -7,18 +7,11 @@ import (
 	"one-api/model"
 	"strconv"
 
-	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
 func GetAllTokens(c *gin.Context) {
-	userId := c.GetInt("id")
-
-	session := sessions.Default(c)
-	id := session.Get("id")
-	if id != nil {
-		userId = session.Get("id").(int)
-	}
+	userId := common.GetSession[int](c, "id")
 
 	fmt.Printf("userId=%v", userId)
 	p, _ := strconv.Atoi(c.Query("p"))

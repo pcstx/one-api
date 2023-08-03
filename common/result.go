@@ -36,3 +36,10 @@ func Error(c *gin.Context, errMsg string) {
 
 	c.JSON(http.StatusOK, res)
 }
+
+func Unauthorized(c *gin.Context, errMsg string) {
+	c.JSON(http.StatusUnauthorized, gin.H{
+		"success": false,
+		"message": errMsg,
+	})
+}

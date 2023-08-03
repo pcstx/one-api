@@ -84,16 +84,14 @@ func (con PushplusController) ConfirmLogin(c *gin.Context) {
 	}
 
 	//设置cookie，实现单点登录
-	c.SetCookie("pushToken", token, 7*3600*24, "/", common.PushPlusDomain, false, false)
-	session := sessions.Default(c)
-	session.Set("pushToken", token)
-	session.Save()
+	common.AddPushToken(c, token)
+	common.SetSession(c, "pushToken", token)
 
 	//根据token获取pushplus中用户详情
 	userInfo, _ := GetMyInfo(token)
 
 	//系统内的账号登录
-	WeChatLogin(c, userInfo)
+	weChatLogin(c, userInfo)
 	return
 }
 
@@ -103,6 +101,10 @@ func getUserInfo(token string) (*UserInfo, error) {
 	res, err := common.HttpGet[UserInfo](url, token)
 	if err != nil {
 		common.SysLog(err.Error())
+		return &UserInfo{}, err
+	}
+	//未登录或者其他错误
+	if res.Code != 200 {
 		return &UserInfo{}, err
 	}
 
@@ -117,11 +119,15 @@ func GetMyInfo(token string) (*UserInfo, error) {
 		common.SysLog(err.Error())
 		return &UserInfo{}, err
 	}
+	//未登录或者其他错误
+	if res.Code != 200 {
+		return &UserInfo{}, err
+	}
 
 	return &res.Data, nil
 }
 
-func WeChatLogin(c *gin.Context, userInfo *UserInfo) {
+func weChatLogin(c *gin.Context, userInfo *UserInfo) {
 	wechatId := userInfo.OpenId
 
 	user := model.User{
@@ -162,6 +168,51 @@ func WeChatLogin(c *gin.Context, userInfo *UserInfo) {
 	setupLogin(&user, c)
 }
 
+func AuthLogin(c *gin.Context, userInfo *UserInfo) {
+	wechatId := userInfo.OpenId
+
+	user := model.User{
+		WeChatId: wechatId,
+	}
+	if model.IsWeChatIdAlreadyTaken(wechatId) {
+		err := user.FillUserByWeChatId()
+		if err != nil {
+			common.Error(c, err.Error())
+			c.Abort()
+			return
+		}
+	} else {
+		if common.RegisterEnabled {
+			displayName := userInfo.NickName
+			if len(displayName) <= 0 {
+				displayName = "微信用户"
+			}
+
+			user.Username = "wechat_" + strconv.Itoa(model.GetMaxUserId()+1)
+			user.DisplayName = displayName
+			user.Role = common.RoleCommonUser
+			user.Status = common.UserStatusEnabled
+
+			if err := user.Insert(0); err != nil {
+				common.Error(c, err.Error())
+				c.Abort()
+				return
+			}
+		} else {
+			common.Error(c, "管理员关闭了新用户注册")
+			c.Abort()
+			return
+		}
+	}
+
+	if user.Status != common.UserStatusEnabled {
+		common.Error(c, "用户已被封禁")
+		c.Abort()
+		return
+	}
+	saveLoginInfo(&user, c)
+}
+
 /*
 登录操作
 先调用pushplus登录接口
@@ -171,20 +222,14 @@ func (con PushplusController) WechatLogout(c *gin.Context) {
 	//调用pushplus接口
 	loginOut(c)
 	//删除cookie
-	c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
-	session := sessions.Default(c)
-	session.Clear()
-	err := session.Save()
-	if err != nil {
-		common.Error(c, err.Error())
-		return
-	}
+	common.RemoveCookie(c, "pushToken")
+	//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
+	common.ClearSession(c)
 	common.Success(c, nil)
 }
 
 func loginOut(c *gin.Context) {
-	session := sessions.Default(c)
-	token := session.Get("pushToken")
+	token := common.GetSession[string](c, "pushToken")
 
 	fmt.Printf("退出时候获取token=%v\n", token)
 	url := fmt.Sprintf("%s/customer/login/loginOut", common.PushPlusApiUrl)
