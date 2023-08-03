@@ -61,7 +61,7 @@ const QrCodeLogin = () => {
       );
       const { success, message, data } = res.data;
       if (success) { 
-        console.log("data:"+ data);
+        //console.log("data:"+ data);
         userDispatch({ type: 'login', payload: data });
         localStorage.setItem('user', JSON.stringify(data));
         navigate('/');
