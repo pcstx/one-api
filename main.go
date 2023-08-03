@@ -90,6 +90,10 @@ func main() {
 		store = cookie.NewStore([]byte(common.SessionSecret))
 	} else {
 		store, _ = redis.NewStore(10, "tcp", common.RDB.Options().Addr, common.RDB.Options().Password, []byte(common.SessionSecret))
+		store.Options(sessions.Options{
+			//7天过期
+			MaxAge: int(3600 * 24 * 7),
+		})
 	}
 	server.Use(sessions.Sessions("session", store))
 
