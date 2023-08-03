@@ -38,7 +38,7 @@ const Footer = () => {
         ) : (
           <div className='custom-footer'>
             <a
-              href='https://github.com/songquanpeng/one-api'
+              href='https://perkai.pushplus.plus'
               target='_blank'
             >
               {systemName} {process.env.REACT_APP_VERSION}{' '}

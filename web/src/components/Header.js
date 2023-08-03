@@ -49,7 +49,8 @@ let headerButtons = [
   {
     name: '设置',
     to: '/setting',
-    icon: 'setting'
+    icon: 'setting',
+    admin: true
   },
   {
     name: '使用说明',
@@ -71,6 +72,7 @@ const Header = () => {
   let navigate = useNavigate();
 
   const [showSidebar, setShowSidebar] = useState(false);
+  const [activeItem,setActiveItem] = useState("首页");
   const systemName = getSystemName();
   const logo = getLogo();
 
@@ -86,6 +88,10 @@ const Header = () => {
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
+
+  function handleItemClick(e) {
+    setActiveItem(e.target.innerText)
+  }
 
   const renderButtons = (isMobile) => {
     return headerButtons.map((button) => {
@@ -103,7 +109,7 @@ const Header = () => {
         );
       }
       return (
-        <Menu.Item key={button.name} as={Link} to={button.to}>
+        <Menu.Item key={button.name} as={Link} to={button.to} active={ activeItem === button.name} onClick={handleItemClick}>
           <Icon name={button.icon} />
           {button.name}
         </Menu.Item>
@@ -125,7 +131,7 @@ const Header = () => {
                 borderTop: 'none',
                 height: '51px'
               }
-              : { borderTop: 'none', height: '52px' }
+              : { border: 'none', height: '52px' }
           }
         >
           <Container>
@@ -137,6 +143,7 @@ const Header = () => {
               />
               <div style={{ fontSize: '20px' }}>
                 <b>{systemName}</b>
+                <p style={{fontSize: '15px'}}>开放平台</p>
               </div>
             </Menu.Item>
             <Menu.Menu position='right'>
@@ -163,14 +170,14 @@ const Header = () => {
                     >
                       登录
                     </Button>
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         setShowSidebar(false);
                         navigate('/register');
                       }}
                     >
                       注册
-                    </Button>
+                    </Button> */}
                   </>
                 )}
               </Menu.Item>
@@ -185,12 +192,13 @@ const Header = () => {
 
   return (
     <>
-      <Menu borderless style={{ borderTop: 'none' }}>
+      <Menu borderless style={{ border: 'none' }}>
         <Container>
           <Menu.Item as={Link} to='/' className={'hide-on-mobile'}>
             <img src={logo} alt='logo' style={{ marginRight: '0.75em' }} />
             <div style={{ fontSize: '20px' }}>
               <b>{systemName}</b>
+              <p style={{fontSize: '15px'}}>开放平台</p>
             </div>
           </Menu.Item>
           {renderButtons(false)}

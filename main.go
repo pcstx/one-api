@@ -24,7 +24,7 @@ var indexPage []byte
 
 func main() {
 	common.SetupGinLog()
-	common.SysLog("One API " + common.Version + " started")
+	common.SysLog("破壳AI " + common.Version + " started")
 	if os.Getenv("GIN_MODE") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
