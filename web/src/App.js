@@ -75,7 +75,7 @@ function App() {
     loadStatus().then();
     let systemName = getSystemName();
     if (systemName) {
-      document.title = systemName;
+      document.title = systemName +' - 开放平台';
     }
     let logo = getLogo();
     if (logo) {

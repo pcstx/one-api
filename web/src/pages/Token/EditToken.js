@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate } from 'react-router-dom';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
@@ -9,6 +9,8 @@ const EditToken = () => {
   const tokenId = params.id;
   const isEdit = tokenId !== undefined;
   const [loading, setLoading] = useState(isEdit);
+  let navigate = useNavigate();
+
   const originInputs = {
     name: '',
     remain_quota: isEdit ? 0 : 500000,
@@ -86,6 +88,7 @@ const EditToken = () => {
         showSuccess('令牌创建成功，请在列表页面点击复制获取令牌！');
         setInputs(originInputs);
       }
+      navigate(-1);
     } else {
       showError(message);
     }
