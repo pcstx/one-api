@@ -19,7 +19,7 @@ const getUserInfo = async ()=>{
   let res  = await API.get(`/api/user/self`);
   const {success, message, data} = res.data;
   if (success) {
-    localStorage.setItem('user',data)
+    localStorage.setItem('user',JSON.stringify(data))
     return 1;
   } else {
     return 0;
