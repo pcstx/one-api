@@ -14,9 +14,10 @@ const QrCodeLogin = () => {
   const [qrCodeUrl, setQrCodeUrl] = useState({});
   const [qrCode, setQrCode] = useState({});
   const [userState, userDispatch] = useContext(UserContext);
+  const [isDivVisible, setIsDivVisible] = useState(false);
 
   const logo = getLogo(); 
-  let count = 5;
+  let count = 19;
   let navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +49,7 @@ const QrCodeLogin = () => {
                     count--;
                 } else {    
                     clearInterval(timer);
+                    setIsDivVisible(!isDivVisible);
                 }
             }
         }, 3000);
@@ -73,6 +75,13 @@ const QrCodeLogin = () => {
         return false;
       }
   }
+
+  const handleToggleDiv = () => {
+    // 切换div的显示状态
+    getQrCodeUrl();
+    count = 19;
+    setIsDivVisible(!isDivVisible);    
+  };
  
   return (
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
@@ -80,9 +89,21 @@ const QrCodeLogin = () => {
         <Header as='h2' color='' textAlign='center'>
           <Image src={logo} /> 用户登录
         </Header>
-        <Form size='large'>
+        <Form>
           <Segment>
-            <Image src={qrCodeUrl} size='medium' />
+            <Image src={qrCodeUrl} size='medium' hidden={!qrCodeUrl} verticalAlign='middle'/>
+            { isDivVisible && 
+            <div  style={{backgroundColor: "rgba(255,255,255,.9)",
+                width: "100%",
+                height: "280px",
+                top: "0",
+                position: "absolute",
+                top: "2rem",
+                left: "0rem"
+                }}>
+                  <h2 style={{color: '#6c757d', height: "100%",padding: '130px 0 0 0',cursor: 'pointer'}} onClick={handleToggleDiv}>二维码过期，点击刷新</h2>
+            </div>
+            }
             <div style={{ textAlign: 'center' }}>
                 <h3>
                   微信扫码登录
