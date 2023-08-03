@@ -1,10 +1,10 @@
 import { Navigate } from 'react-router-dom';
 
-import { history } from '../helpers';
+import { history,getCookie } from '../helpers';
 
 
 function PrivateRoute({ children }) {
-  if (!localStorage.getItem('user')) {
+  if(getCookie('pushToken') == null){
     return <Navigate to='/login' state={{ from: history.location }} />;
   }
   return children;

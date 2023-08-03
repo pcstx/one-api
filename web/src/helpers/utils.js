@@ -200,3 +200,15 @@ export const setCookieWithDomain = (name, value, days, domain) => {
   // Set the cookie using the document.cookie property
   document.cookie = cookieString;
 }
+
+export const getCookie = (name) => {
+    // 从 document.cookie 字符串中解析出指定名称的 cookie 值
+    const cookieArray = document.cookie.split('; ');
+    for (const cookie of cookieArray) {
+      const [cookieName, cookieValue] = cookie.split('=');
+      if (cookieName === name) {
+        return cookieValue;
+      }
+    }
+    return '';
+}

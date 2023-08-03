@@ -340,3 +340,7 @@ https://openai.justsong.cn
 同样适用于基于本项目的二开项目。
 
 依据 MIT 协议，使用者需自行承担使用本项目的风险与责任，本开源项目开发者与此无关。
+
+
+## 
+前端判断是否登录通过PrivateRoute方法中，判断localStore中是否有user。没有的直接跳转登录页面
