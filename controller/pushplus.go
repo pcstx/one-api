@@ -223,6 +223,7 @@ func (con PushplusController) WechatLogout(c *gin.Context) {
 	loginOut(c)
 	//删除cookie
 	common.RemoveCookie(c, "pushToken")
+	common.RemoveCookie(c, "session")
 	//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
 	common.ClearSession(c)
 	common.Success(c, nil)

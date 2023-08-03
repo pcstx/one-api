@@ -41,6 +41,7 @@ func authHelper(c *gin.Context, minRole int) {
 			} else {
 				//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
 				common.RemoveCookie(c, "pushToken")
+				common.RemoveCookie(c, "session")
 				common.ClearSession(c)
 				c.JSON(http.StatusUnauthorized, gin.H{
 					"success": false,
