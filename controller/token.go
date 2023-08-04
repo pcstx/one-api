@@ -11,7 +11,7 @@ import (
 )
 
 func GetAllTokens(c *gin.Context) {
-	userId := common.GetSession[int](c, "id")
+	userId := c.GetInt("id")
 
 	fmt.Printf("userId=%v", userId)
 	p, _ := strconv.Atoi(c.Query("p"))
