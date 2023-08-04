@@ -56,3 +56,8 @@ export function renderQuotaWithPrompt(quota, digits) {
   }
   return '';
 }
+
+export function renderKey(key) {
+  let displayKey = "sk-"+key.slice(0, 2) + '......' + key.slice(-4);
+  return displayKey;
+}

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { API, copy, showError, showSuccess, showWarning, timestamp2string } from '../helpers';
 
 import { ITEMS_PER_PAGE } from '../constants';
-import { renderQuota } from '../helpers/render';
+import { renderQuota,renderKey } from '../helpers/render';
 
 function renderTimestamp(timestamp) {
   return (
@@ -187,6 +187,14 @@ const TokensTable = () => {
                 sortToken('used_quota');
               }}
             >
+               令牌
+            </Table.HeaderCell>
+            <Table.HeaderCell
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                sortToken('key');
+              }}
+            >
               已用配额
             </Table.HeaderCell>
             <Table.HeaderCell
@@ -229,6 +237,7 @@ const TokensTable = () => {
                 <Table.Row key={token.id}>
                   <Table.Cell>{token.name ? token.name : '无'}</Table.Cell>
                   <Table.Cell>{renderStatus(token.status)}</Table.Cell>
+                  <Table.Cell>{renderKey(token.key)}</Table.Cell>
                   <Table.Cell>{renderQuota(token.used_quota)}</Table.Cell>
                   <Table.Cell>{token.unlimited_quota ? '无限制' : renderQuota(token.remain_quota, 2)}</Table.Cell>
                   <Table.Cell>{renderTimestamp(token.created_time)}</Table.Cell>
@@ -248,7 +257,7 @@ const TokensTable = () => {
                           }
                         }}
                       >
-                        复制
+                        复制令牌
                       </Button>
                       <Popup
                         trigger={
