@@ -143,7 +143,7 @@ const Recharge = () => {
               <Message info>
                   <Message.List>
                       <Message.Item>积分兑换比例为1:500，100积分=50,000 token</Message.Item>
-                      <Message.Item>最少100积分起兑</Message.Item>
+                      <Message.Item>最少100积分起兑，最多1,000,000积分</Message.Item>
                       <Message.Item>500,000 token约为1美元额度</Message.Item>
                       <Message.Item>兑换成token后将无法退回</Message.Item>
                   </Message.List>
