@@ -62,6 +62,10 @@ const EditToken = () => {
     }
   }, []);
 
+   const back = () => {
+    navigate(-1);
+   };
+
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
     let localInputs = inputs;
@@ -101,7 +105,7 @@ const EditToken = () => {
         <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Input
-              label='名称'
+              label='令牌名称'
               name='name'
               placeholder={'请输入名称'}
               onChange={handleInputChange}
@@ -154,8 +158,13 @@ const EditToken = () => {
           <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
           }}>{unlimited_quota ? '取消无限配额' : '设置为无限配额'}</Button>
+        <Form.Field style={{marginTop:'10px'}}>
           <Button positive onClick={submit}>提交</Button>
+          <Button onClick={back}>返回</Button>
+        </Form.Field>
+        
         </Form>
+
       </Segment>
     </>
   );

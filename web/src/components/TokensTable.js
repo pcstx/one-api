@@ -171,7 +171,7 @@ const TokensTable = () => {
                 sortToken('name');
               }}
             >
-              名称
+              令牌名称
             </Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
