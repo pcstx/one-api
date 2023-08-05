@@ -127,6 +127,9 @@ const Recharge = () => {
                 onChange={(e) => {
                   setRedemptionCode(e.target.value);
                 }}
+                input='number'
+                minLength='3'
+                maxLength='7'
               />
               <Button color='orange' onClick={openConfirm} disabled={isSubmitting}>
                   {isSubmitting ? '兑换中...' : '兑换Token'}
