@@ -44,6 +44,9 @@ const Footer = () => {
               {systemName} {process.env.REACT_APP_VERSION}{' '}
             </a>
             <span>© 2023 破壳AI 开放平台</span>
+            <p style={{lineHeight:'30px'}}>
+              <a href="https://beian.miit.gov.cn/" target="_blank" style={{color:'#000'}}>苏ICP备2021004906号</a>
+            </p>           
           </div>
         )}
       </Container>

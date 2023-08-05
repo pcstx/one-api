@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Card, Grid, Header, Segment, Container,Button } from 'semantic-ui-react';
 import { API, showError, showNotice } from '../../helpers';
+import { useNavigate } from 'react-router-dom';
 import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 
@@ -8,6 +9,10 @@ const NewHome = () => {
   const [statusState, statusDispatch] = useContext(StatusContext);
   const [homePageContentLoaded, setHomePageContentLoaded] = useState(false);
   const [homePageContent, setHomePageContent] = useState('');
+
+  let navigate = useNavigate();
+
+  const toAbout = () => navigate('/about');
 
   const displayNotice = async () => {
     const res = await API.get('/api/notice');
@@ -41,7 +46,7 @@ const NewHome = () => {
                 致力于整合AI能力，将其应用范围拓展到更多领域，使AI技术普及到更加广大人群。推动AI的全面发展，为社会带来积极的变革和发展机遇。
                 </Container>
                 <div>
-                    <Button class="ui button" size="big" color="blue" style={{margin:'60px',backgroundColor:'#5680ff'}}>开始使用</Button>
+                    <Button class="ui button" size="big" color="blue" onClick={toAbout} style={{margin:'60px',backgroundColor:'#5680ff'}}>开始使用</Button>
                 </div>
             </Container>
       }
