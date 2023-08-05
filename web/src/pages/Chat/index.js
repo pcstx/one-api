@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Chat = () => {
-  const chatLink = localStorage.getItem('chat_link');
+  const chatLink = localStorage.getItem('chat_link')?localStorage.getItem('chat_link'):"https://chat.pushplus.plus/";
 
   return (
     <iframe

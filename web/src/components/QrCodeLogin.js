@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } from 'semantic-ui-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate,useLocation } from 'react-router-dom';
 import { UserContext } from '../context/User';
 import { API, getLogo, showError, showSuccess,setCookie } from '../helpers';
 import Loading from '../components/Loading';
@@ -20,6 +21,10 @@ const QrCodeLogin = () => {
   const logo = getLogo(); 
   let count = 19;
   let navigate = useNavigate();
+
+  const stateparams = useLocation();
+  const stateData = stateparams.state;
+
 
   useEffect(() => {
     if (searchParams.get('expired')) {
@@ -67,7 +72,13 @@ const QrCodeLogin = () => {
         //console.log("data:"+ data);
         userDispatch({ type: 'login', payload: data });
         localStorage.setItem('user', JSON.stringify(data));
-        navigate('/');
+       // console.log("Stateparams.from:"+ stateData.from);
+        if (stateData && stateData.from) {
+          console.log("Stateparams.from:"+ stateData.from);
+          navigate(stateData.from);
+        } else {
+          navigate('/');
+        }
         showSuccess('登录成功！'); 
 
         return true;
@@ -83,6 +94,7 @@ const QrCodeLogin = () => {
     count = 19;
     setIsDivVisible(!isDivVisible);    
   };
+ 
  
   return (
     <Grid textAlign='center' style={{ marginTop: '48px' }}>
