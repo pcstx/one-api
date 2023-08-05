@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useContext, useState,useEffect } from 'react';
+import { Link, useNavigate,useLocation } from 'react-router-dom';
 import { UserContext } from '../context/User';
 
 import { Button, Container, Dropdown, Grid, Icon, Menu, Segment } from 'semantic-ui-react';
@@ -71,7 +71,7 @@ let headerButtons = [
 //     icon: 'comments'
 //   });
 // }
-
+ 
 const Header = () => {
   const [userState, userDispatch] = useContext(UserContext);
   let navigate = useNavigate();
@@ -80,6 +80,17 @@ const Header = () => {
   const [activeItem,setActiveItem] = useState("首页");
   const systemName = getSystemName();
   const logo = getLogo();
+  const location = useLocation();
+
+  useEffect(() => {
+    // 在每次 URL 地址变化时更新 activeItem 状态
+    const pathname = location.pathname;
+    const activeButton = headerButtons.find((button) => pathname===button.to);
+
+    if (activeButton) {
+      setActiveItem(activeButton.name);
+    }
+  }, [location.pathname]);
 
   async function logout() {
     setShowSidebar(false);
@@ -94,8 +105,8 @@ const Header = () => {
     setShowSidebar(!showSidebar);
   };
 
-  function handleItemClick(e) {
-    setActiveItem(e.target.innerText)
+  function handleItemClick(name) {
+    setActiveItem(name)
   }
 
   const renderButtons = (isMobile) => {
@@ -114,7 +125,7 @@ const Header = () => {
         );
       }
       return (
-        <Menu.Item key={button.name} as={Link} to={button.to} active={ activeItem === button.name} onClick={handleItemClick}>
+        <Menu.Item key={button.name} as={Link} to={button.to} active={activeItem === button.name} onClick={() => handleItemClick(button.name)}>
           {/* <Icon name={button.icon} /> */}
           {button.name}
         </Menu.Item>
