@@ -8,7 +8,7 @@ body {
     scrollbar-width: none;
     background: url("https://perkai.pushplus.plus/background.jpg") no-repeat!important;
     background-size: cover!important;
-    
+    background-color: #f2f6ff! important;   
 }
 
 body::-webkit-scrollbar {
