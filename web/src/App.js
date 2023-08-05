@@ -27,7 +27,7 @@ import Chat from './pages/Chat';
 import Recharge from './pages/Recharge';
 
 const NewHome   = lazy(() => import('./pages/Home/home.js'));
-const About = lazy(() => import('./pages/About'));
+const NewAbout = lazy(() => import('./pages/About/home.js'));
 
 function App() {
   const [userState, userDispatch] = useContext(UserContext);
@@ -282,7 +282,7 @@ function App() {
         path='/about'
         element={
           <Suspense fallback={<Loading></Loading>}>
-            <About />
+            <NewAbout />
           </Suspense>
         }
       />

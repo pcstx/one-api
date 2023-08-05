@@ -30,7 +30,7 @@ const NewHome = () => {
   return (
     <>
       {
-         <Segment>
+         <Segment attached textAlign='center'>
             <Header as='h3'>破壳AI</Header>
                 <div>测试破壳</div>
           </Segment>

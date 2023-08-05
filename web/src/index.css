@@ -8,6 +8,7 @@ body {
     scrollbar-width: none;
     background: url("https://perkai.pushplus.plus/background.jpg") no-repeat!important;
     background-size: cover!important;
+    
 }
 
 body::-webkit-scrollbar {
@@ -52,4 +53,7 @@ code {
     align-items: right!important;
 }
 
-
+.ui.segment{
+    box-shadow: none!important;
+    padding: 2.5rem!important;
+}
