@@ -38,7 +38,7 @@ const NewHome = () => {
                     <strong style={{fontSize:'46px'}}>生成式AI应用开发工具平台</strong>
                 </p>
                 <Container  style={{textAlign:'left',fontSize:'18px',lineHeight:'30px'}}>
-                整合AI的能力，将其应用范围拓展到更多领域，使AI技术普惠于广大人群。教育、政策制定和提高可访问性等措施将推动AI的全面发展，为社会带来积极的变革和发展机遇。
+                致力于整合AI能力，将其应用范围拓展到更多领域，使AI技术普及到更加广大人群。推动AI的全面发展，为社会带来积极的变革和发展机遇。
                 </Container>
                 <div>
                     <Button class="ui button" size="big" color="blue" style={{margin:'60px',backgroundColor:'#5680ff'}}>开始使用</Button>
