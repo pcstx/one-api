@@ -26,7 +26,7 @@ import Log from './pages/Log';
 import Chat from './pages/Chat';
 import Recharge from './pages/Recharge';
 
-const Home = lazy(() => import('./pages/Home'));
+const NewHome   = lazy(() => import('./pages/Home/home.js'));
 const About = lazy(() => import('./pages/About'));
 
 function App() {
@@ -92,7 +92,7 @@ function App() {
         path='/'
         element={
           <Suspense fallback={<Loading></Loading>}>
-            <Home />
+            <NewHome />
           </Suspense>
         }
       />

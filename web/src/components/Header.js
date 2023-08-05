@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/User';
 
-import { Button, Container, Dropdown, Icon, Menu, Segment } from 'semantic-ui-react';
+import { Button, Container, Dropdown, Grid, Icon, Menu, Segment } from 'semantic-ui-react';
 import { API, getLogo, getSystemName, isAdmin, isMobile, showSuccess } from '../helpers';
 import '../index.css';
 
@@ -110,7 +110,7 @@ const Header = () => {
       }
       return (
         <Menu.Item key={button.name} as={Link} to={button.to} active={ activeItem === button.name} onClick={handleItemClick}>
-          <Icon name={button.icon} />
+          {/* <Icon name={button.icon} /> */}
           {button.name}
         </Menu.Item>
       );
@@ -201,7 +201,9 @@ const Header = () => {
               <p style={{fontSize: '15px'}}>开放平台</p>
             </div>
           </Menu.Item>
+          <Container className={'div-flex'}> 
           {renderButtons(false)}
+          </Container>
           <Menu.Menu position='right'>
             {userState.user ? (
               <Dropdown

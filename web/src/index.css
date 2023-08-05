@@ -6,8 +6,8 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scrollbar-width: none;
-    background: url("https://perkai.pushplus.plus/background.jpg") no-repeat;
-    background-size: cover;
+    background: url("https://perkai.pushplus.plus/background.jpg") no-repeat!important;
+    background-size: cover!important;
 }
 
 body::-webkit-scrollbar {
@@ -35,3 +35,21 @@ code {
         display: none !important;
     }
 }
+
+.ui.menu {
+    background-color: rgba(255, 255, 255, 0)!important;
+    box-shadow:none!important;
+}
+
+.ui.menu .active.item {
+    border-bottom: 1px solid rgba(34,36,38,.15);
+    background-color: rgba(0, 0, 0, 0)!important;
+}
+
+.div-flex {
+    display: flex!important;
+    justify-content: right!important;
+    align-items: right!important;
+}
+
+
