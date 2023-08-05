@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Grid, Header, Segment, Statistic,Message,Confirm } from 'semantic-ui-react';
+import { Button, Form, Grid, Header, Segment, Statistic,Message,Confirm, FormGroup,Container,Label } from 'semantic-ui-react';
 import { API, showError, showInfo, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render';
 
@@ -11,13 +11,35 @@ const Recharge = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [open,setOpen] = useState(false);
 
-  const openConfirm = () =>  { setOpen(true) }
+  const openConfirm = () =>  { 
+    if(redemptionCode<100){
+      showError('兑换最低100积分起')
+      return;
+    }
+    if(redemptionCode<userPoint){
+      showError('积分不足,请充值积分')
+      return;
+    }
+    if(redemptionCode>1000000){
+      showError('兑换最高100万积分')
+      return;
+    }
+    setOpen(true) 
+  }
   const closeConfirm = () => {setOpen(false)}
 
   const recharge = async () => {
     if(redemptionCode<100){
-        showInfo('兑换最低100积分起')
+      showError('兑换最低100积分起')
         return;
+    }
+    if(redemptionCode<userPoint){
+      showError('积分不足,请充值积分')
+      return;
+    }
+    if(redemptionCode>1000000){
+      showError('兑换最高100万积分')
+      return;
     }
     setIsSubmitting(true);
     try {
@@ -73,33 +95,59 @@ const Recharge = () => {
 
   return (
     <Segment>
-      <Header as='h3'>积分兑换token</Header>
-      <Grid columns={2} stackable>
-        <Grid.Column width={5}>
-          <Form>
-            <Form.Input
-              placeholder='积分'
-              name='redemptionCode'
-              value={redemptionCode}
-              onChange={(e) => {
-                setRedemptionCode(e.target.value);
-              }}
-            />
-            <Message info>
-                <Message.List>
-                    <Message.Item>积分兑换比例为1:500，100积分=50,000 token</Message.Item>
-                    <Message.Item>最少100积分起兑</Message.Item>
-                    <Message.Item>500,000 token约为1美元</Message.Item>
-                    <Message.Item>兑换成token后将无法退回！</Message.Item>
-                </Message.List>
-            </Message>
-            <Button color='orange' onClick={openConfirm} disabled={isSubmitting}>
-                {isSubmitting ? '兑换中...' : '兑换额度'}
-            </Button>
-            <Button color='blue' onClick={openTopUpLink}>
-              积分充值
-            </Button>
-          </Form>
+      <Header as='h3'>额度充值</Header>
+
+      <Statistic.Group widths='three'>
+            <Statistic>
+              <Statistic.Value>{userPoint.toLocaleString()}</Statistic.Value>
+              <Statistic.Label>
+                我的积分<br/>
+                <a href='#' onClick={openTopUpLink}> 积分充值</a>
+              </Statistic.Label>              
+            </Statistic>
+            <Statistic>
+              <Statistic.Value>{userQuota.toLocaleString()}</Statistic.Value>
+              <Statistic.Label>我的token</Statistic.Label>
+            </Statistic>
+            <Statistic>
+              <Statistic.Value>{renderQuota(userQuota)}</Statistic.Value>
+              <Statistic.Label>我的额度</Statistic.Label>
+            </Statistic>
+      </Statistic.Group>
+
+      <Segment basic>
+        <Form>
+          <FormGroup inline>
+              <label>积分数量</label>
+              <Form.Input
+                focus
+                placeholder='积分'
+                name='redemptionCode'
+                value={redemptionCode}
+                onChange={(e) => {
+                  setRedemptionCode(e.target.value);
+                }}
+              />
+              <Button color='orange' onClick={openConfirm} disabled={isSubmitting}>
+                  {isSubmitting ? '兑换中...' : '兑换Token'}
+              </Button>
+             
+          </FormGroup>
+          <Label>
+                 兑换Token数量：{(redemptionCode*500).toLocaleString()}<br/>
+              </Label>
+
+              <Message info>
+                  <Message.List>
+                      <Message.Item>积分兑换比例为1:500，100积分=50,000 token</Message.Item>
+                      <Message.Item>最少100积分起兑</Message.Item>
+                      <Message.Item>500,000 token约为1美元额度</Message.Item>
+                      <Message.Item>兑换成token后将无法退回</Message.Item>
+                  </Message.List>
+              </Message>
+        </Form>
+      </Segment>
+
           <Confirm
             open={open}
             header='确认兑换'
@@ -110,24 +158,6 @@ const Recharge = () => {
             confirmButton="确认兑换"
             size='mini'
             />
-        </Grid.Column>
-        <Grid.Column width={11}>
-          <Statistic.Group widths='three'>
-            <Statistic>
-              <Statistic.Value>{userPoint.toLocaleString()}</Statistic.Value>
-              <Statistic.Label>我的积分</Statistic.Label>
-            </Statistic>
-            <Statistic>
-              <Statistic.Value>{userQuota.toLocaleString()}</Statistic.Value>
-              <Statistic.Label>我的token</Statistic.Label>
-            </Statistic>
-            <Statistic>
-              <Statistic.Value>{renderQuota(userQuota)}</Statistic.Value>
-              <Statistic.Label>我的额度</Statistic.Label>
-            </Statistic>
-          </Statistic.Group>
-        </Grid.Column>
-      </Grid>
     </Segment>
   );
 };
