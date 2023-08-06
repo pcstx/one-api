@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
-import { useParams,useNavigate } from 'react-router-dom';
+import { useParams,useNavigate,Link } from 'react-router-dom';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
@@ -9,6 +9,7 @@ const EditToken = () => {
   const tokenId = params.id;
   const isEdit = tokenId !== undefined;
   const [loading, setLoading] = useState(isEdit);
+  const [userQuota, setUserQuota] = useState(0);
   let navigate = useNavigate();
 
   const originInputs = {
@@ -23,6 +24,16 @@ const EditToken = () => {
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
+
+  const getUserQuota = async ()=>{
+    let res  = await API.get(`/api/user/point`);
+    const {success, message, data} = res.data;
+    if (success) {
+      setUserQuota(data.quota);
+    } else {
+      showError(message);
+    }
+  }
 
   const setExpiredTime = (month, day, hour, minute) => {
     let now = new Date();
@@ -142,10 +153,13 @@ const EditToken = () => {
               setExpiredTime(0, 0, 0, 1);
             }}>一分钟后过期</Button>
           </div>
-          <Message>注意，令牌的配额仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
+          <Message>
+            <p>注意，令牌的配额仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</p>
+            <p>Token余额：{userQuota.toLocaleString()}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Link to="/recharge">点击充值</Link></p>
+          </Message>
           <Form.Field>
             <Form.Input
-              label={`配额${renderQuotaWithPrompt(remain_quota)}`}
+              label={`配额Token${renderQuotaWithPrompt(remain_quota)}`}
               name='remain_quota'
               placeholder={'请输入额度'}
               onChange={handleInputChange}
@@ -155,6 +169,7 @@ const EditToken = () => {
               disabled={unlimited_quota}
             />
           </Form.Field>
+         
           <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
           }}>{unlimited_quota ? '取消无限配额' : '设置为无限配额'}</Button>
