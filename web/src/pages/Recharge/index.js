@@ -33,7 +33,7 @@ const Recharge = () => {
       showError('兑换最低100积分起')
         return;
     }
-    if(redemptionCode<userPoint){
+    if(redemptionCode>userPoint){
       showError('积分不足,请充值积分')
       return;
     }
