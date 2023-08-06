@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Card, Grid, Header, Segment, Container,Button } from 'semantic-ui-react';
 import { API, showError, showNotice } from '../../helpers';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { StatusContext } from '../../context/Status';
 import { marked } from 'marked';
 
@@ -13,6 +13,11 @@ const NewHome = () => {
   let navigate = useNavigate();
 
   const toAbout = () => navigate('/about');
+
+  const toQQ = () => {
+    const url = 'https://qm.qq.com/cgi-bin/qm/qr?k=1rVwgMbTO2JNsoSQnxZ_8mBn3W0zQbLI&jump_from=webapi&authKey=NUADwLOXuP8WY2J9qhzS8I7f5FNQw4vDDzDdW3l4vAz/wFYua1H6wvXHW+KYpmHS';
+    window.open(url, '_blank');
+  }
 
   const displayNotice = async () => {
     const res = await API.get('/api/notice');
@@ -46,7 +51,9 @@ const NewHome = () => {
                 致力于整合AI能力，将其应用范围拓展到更多领域，使AI技术普及到更加广大人群。推动AI的全面发展，为社会带来积极的变革和发展机遇。
                 </Container>
                 <div>
-                    <Button class="ui button" size="big" color="blue" onClick={toAbout} style={{margin:'60px',backgroundColor:'#5680ff'}}>开始使用</Button>
+                    <Button class="ui button" size="big" color="blue" onClick={toAbout} style={{margin:'60px 20px 60px 60px',backgroundColor:'#5680ff'}}>开始使用</Button>
+                    <a href='https://qm.qq.com/cgi-bin/qm/qr?k=1rVwgMbTO2JNsoSQnxZ_8mBn3W0zQbLI&jump_from=webapi&authKey=NUADwLOXuP8WY2J9qhzS8I7f5FNQw4vDDzDdW3l4vAz/wFYua1H6wvXHW+KYpmHS'
+                    style={{fontSize:'17px'}} target='_blank'>QQ群：161672147</a>
                 </div>
             </Container>
       }
