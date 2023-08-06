@@ -68,7 +68,7 @@ const Home = () => {
                       <p>
                         源码：
                         <a
-                          href='https://github.com/songquanpeng/one-api'
+                          href='https://perkai.pushplus.plus/image/azure.png'
                           target='_blank'
                         >
                           https://github.com/songquanpeng/one-api
