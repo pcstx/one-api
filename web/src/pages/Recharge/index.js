@@ -60,6 +60,7 @@ const Recharge = () => {
       showError('请求失败');
     } finally {
       setIsSubmitting(false); 
+      setOpen(false);
     }
   };
 
