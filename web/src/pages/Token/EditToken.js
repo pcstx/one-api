@@ -10,7 +10,6 @@ const EditToken = () => {
   const isEdit = tokenId !== undefined;
   const [loading, setLoading] = useState(isEdit);
   const [userQuota, setUserQuota] = useState(0);
-  let navigate = useNavigate();
 
   const originInputs = {
     name: '',
