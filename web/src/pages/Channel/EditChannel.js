@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Input, Message, Segment } from 'semantic-ui-react';
-import { useParams } from 'react-router-dom';
+import { useParams,useNavigate} from 'react-router-dom';
 import { API, showError, showInfo, showSuccess, verifyJSON } from '../../helpers';
 import { CHANNEL_OPTIONS } from '../../constants';
 
@@ -33,6 +33,8 @@ const EditChannel = () => {
   const [basicModels, setBasicModels] = useState([]);
   const [fullModels, setFullModels] = useState([]);
   const [customModel, setCustomModel] = useState('');
+  let navigate = useNavigate();
+
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
     if (name === 'type' && inputs.models.length === 0) {
@@ -177,6 +179,7 @@ const EditChannel = () => {
         showSuccess('渠道创建成功！');
         setInputs(originInputs);
       }
+      navigate(-1);
     } else {
       showError(message);
     }
@@ -201,7 +204,7 @@ const EditChannel = () => {
             inputs.type === 3 && (
               <>
                 <Message>
-                  注意，<strong>模型部署名称必须和模型名称保持一致</strong>，因为 One API 会把请求体中的 model
+                  注意，<strong>模型部署名称必须和模型名称保持一致</strong>，因为 破壳AI 会把请求体中的 model
                   参数替换为你的部署名称（模型名称中的点会被剔除），<a target='_blank'
                                                                     href='https://github.com/songquanpeng/one-api/issues/133?notification_referrer_id=NT_kwDOAmJSYrM2NjIwMzI3NDgyOjM5OTk4MDUw#issuecomment-1571602271'>图片演示</a>。
                 </Message>

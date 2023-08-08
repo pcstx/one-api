@@ -5,13 +5,11 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 var StartTime = time.Now().Unix() // unit: second
 var Version = "v0.0.0"            // this hard coding will be replaced automatically when building, no need to manually change
-var SystemName = "One API"
+var SystemName = "破壳AI"
 var ServerAddress = "http://localhost:3000"
 var Footer = ""
 var Logo = ""
@@ -25,7 +23,7 @@ var UsingSQLite = false
 
 // Any options with "Secret", "Token" in its key won't be return by GetOptions
 
-var SessionSecret = uuid.New().String()
+var SessionSecret = "9a866caba322206524583c175093ddba"
 var SQLitePath = "one-api.db"
 
 var OptionMap map[string]string
@@ -69,6 +67,8 @@ var GitHubClientSecret = ""
 var WeChatServerAddress = ""
 var WeChatServerToken = ""
 var WeChatAccountQRCodeImageURL = ""
+var PushPlusApiUrl = "https://www.pushplus.plus/api"
+var PushPlusDomain = ".pushplus.plus"
 
 var TurnstileSiteKey = ""
 var TurnstileSecretKey = ""
@@ -121,8 +121,8 @@ var (
 	DownloadRateLimitNum            = 10
 	DownloadRateLimitDuration int64 = 60
 
-	CriticalRateLimitNum            = 20
-	CriticalRateLimitDuration int64 = 20 * 60
+	CriticalRateLimitNum            = 120
+	CriticalRateLimitDuration int64 = 60
 )
 
 var RateLimitKeyExpirationDuration = 20 * time.Minute

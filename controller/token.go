@@ -1,15 +1,19 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
+	"fmt"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAllTokens(c *gin.Context) {
 	userId := c.GetInt("id")
+
+	fmt.Printf("userId=%v", userId)
 	p, _ := strconv.Atoi(c.Query("p"))
 	if p < 0 {
 		p = 0

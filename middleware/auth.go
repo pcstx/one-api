@@ -1,15 +1,94 @@
 package middleware
 
 import (
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"one-api/common"
+	"one-api/controller"
 	"one-api/model"
 	"strings"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 func authHelper(c *gin.Context, minRole int) {
+	// session := sessions.Default(c)
+	// username := session.Get("username")
+	// role := session.Get("role")
+	// id := session.Get("id")
+	// status := session.Get("status")
+	id := common.GetSession[int](c, "id")
+
+	//先从cookie中读取pushToken，不存在的话从hearder中读取,最后从session中读取
+	pushToken, _ := c.Cookie("pushToken")
+	if len(pushToken) <= 0 {
+		pushToken = c.GetHeader("pushToken")
+
+		if len(pushToken) <= 0 {
+			pushToken = common.GetSession[string](c, "pushToken")
+		}
+	}
+
+	if len(pushToken) > 0 {
+		//pushToken存在，但是session不存在用户对象，说明是在第三方中登录，要实现单点
+		if id <= 0 {
+			//根据pushToken获取用户信息，再回写到session中
+			//等于登录逻辑
+			userInfo, _ := controller.GetMyInfo(pushToken)
+			if userInfo != nil && userInfo.Id > 0 {
+				common.SetSession(c, "pushToken", pushToken)
+				controller.AuthLogin(c, userInfo)
+			} else {
+				//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
+				common.RemovePushToken(c)
+				common.RemoveCookie(c, "session")
+				common.ClearSession(c)
+				c.JSON(http.StatusUnauthorized, gin.H{
+					"success": false,
+					"message": "未登录或登录已过期，请重新登录！",
+				})
+				c.Abort()
+				return
+			}
+		}
+	} else {
+		//如果pushToken不存在，说明没有登录或者登录超时
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success": false,
+			"message": "未登录或登录已过期，请重新登录！",
+		})
+		c.Abort()
+		return
+	}
+
+	status := common.GetSession[int](c, "status")
+	role := common.GetSession[int](c, "role")
+	username := common.GetSession[string](c, "username")
+
+	if status == common.UserStatusDisabled {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "用户已被封禁",
+		})
+		c.Abort()
+		return
+	}
+	if role < minRole {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "无权进行此操作，权限不足",
+		})
+		c.Abort()
+		return
+	}
+	c.Set("username", username)
+	c.Set("role", role)
+	c.Set("id", id)
+	c.Set("pushToken", pushToken)
+	c.Next()
+}
+
+func authHelper2(c *gin.Context, minRole int) {
 	session := sessions.Default(c)
 	username := session.Get("username")
 	role := session.Get("role")

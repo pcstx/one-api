@@ -1,8 +1,8 @@
-import React, { useContext, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useContext, useState,useEffect } from 'react';
+import { Link, useNavigate,useLocation } from 'react-router-dom';
 import { UserContext } from '../context/User';
 
-import { Button, Container, Dropdown, Icon, Menu, Segment } from 'semantic-ui-react';
+import { Button, Container, Dropdown, Grid, Icon, Menu, Segment } from 'semantic-ui-react';
 import { API, getLogo, getSystemName, isAdmin, isMobile, showSuccess } from '../helpers';
 import '../index.css';
 
@@ -12,6 +12,11 @@ let headerButtons = [
     name: '首页',
     to: '/',
     icon: 'home'
+  },
+  {
+    name: '聊天',
+    to: '/chat',
+    icon: 'comments'
   },
   {
     name: '渠道',
@@ -32,7 +37,7 @@ let headerButtons = [
   },
   {
     name: '充值',
-    to: '/topup',
+    to: '/recharge',
     icon: 'cart'
   },
   {
@@ -49,43 +54,60 @@ let headerButtons = [
   {
     name: '设置',
     to: '/setting',
-    icon: 'setting'
+    icon: 'setting',
+    admin: true
   },
   {
-    name: '关于',
+    name: '使用说明',
     to: '/about',
     icon: 'info circle'
   }
 ];
 
-if (localStorage.getItem('chat_link')) {
-  headerButtons.splice(1, 0, {
-    name: '聊天',
-    to: '/chat',
-    icon: 'comments'
-  });
-}
-
+// if (localStorage.getItem('chat_link')) {
+//   headerButtons.splice(1, 0, {
+//     name: '聊天',
+//     to: '/chat',
+//     icon: 'comments'
+//   });
+// }
+ 
 const Header = () => {
   const [userState, userDispatch] = useContext(UserContext);
   let navigate = useNavigate();
 
   const [showSidebar, setShowSidebar] = useState(false);
+  const [activeItem,setActiveItem] = useState("首页");
   const systemName = getSystemName();
   const logo = getLogo();
+  const location = useLocation();
+
+  useEffect(() => {
+    // 在每次 URL 地址变化时更新 activeItem 状态
+    const pathname = location.pathname;
+    const activeButton = headerButtons.find((button) => pathname===button.to);
+
+    if (activeButton) {
+      setActiveItem(activeButton.name);
+    }
+  }, [location.pathname]);
 
   async function logout() {
     setShowSidebar(false);
-    await API.get('/api/user/logout');
+    await API.get('/api/user/wechatLogout');
     showSuccess('注销成功!');
     userDispatch({ type: 'logout' });
     localStorage.removeItem('user');
-    navigate('/login');
+    navigate('/');
   }
 
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
   };
+
+  function handleItemClick(name) {
+    setActiveItem(name)
+  }
 
   const renderButtons = (isMobile) => {
     return headerButtons.map((button) => {
@@ -103,8 +125,8 @@ const Header = () => {
         );
       }
       return (
-        <Menu.Item key={button.name} as={Link} to={button.to}>
-          <Icon name={button.icon} />
+        <Menu.Item key={button.name} as={Link} to={button.to} active={activeItem === button.name} onClick={() => handleItemClick(button.name)}>
+          {/* <Icon name={button.icon} /> */}
           {button.name}
         </Menu.Item>
       );
@@ -125,7 +147,7 @@ const Header = () => {
                 borderTop: 'none',
                 height: '51px'
               }
-              : { borderTop: 'none', height: '52px' }
+              : { border: 'none', height: '52px' }
           }
         >
           <Container>
@@ -137,6 +159,7 @@ const Header = () => {
               />
               <div style={{ fontSize: '20px' }}>
                 <b>{systemName}</b>
+                <p style={{fontSize: '15px'}}>开放平台</p>
               </div>
             </Menu.Item>
             <Menu.Menu position='right'>
@@ -163,14 +186,14 @@ const Header = () => {
                     >
                       登录
                     </Button>
-                    <Button
+                    {/* <Button
                       onClick={() => {
                         setShowSidebar(false);
                         navigate('/register');
                       }}
                     >
                       注册
-                    </Button>
+                    </Button> */}
                   </>
                 )}
               </Menu.Item>
@@ -185,19 +208,22 @@ const Header = () => {
 
   return (
     <>
-      <Menu borderless style={{ borderTop: 'none' }}>
+      <Menu borderless style={{ border: 'none' }}>
         <Container>
           <Menu.Item as={Link} to='/' className={'hide-on-mobile'}>
             <img src={logo} alt='logo' style={{ marginRight: '0.75em' }} />
             <div style={{ fontSize: '20px' }}>
               <b>{systemName}</b>
+              <p style={{fontSize: '15px'}}>开放平台</p>
             </div>
           </Menu.Item>
+          <Container className={'div-flex'}> 
           {renderButtons(false)}
+          </Container>
           <Menu.Menu position='right'>
             {userState.user ? (
               <Dropdown
-                text={userState.user.username}
+                text={userState.user.display_name}
                 pointing
                 className='link item'
               >

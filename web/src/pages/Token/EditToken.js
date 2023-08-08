@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams,useNavigate,Link } from 'react-router-dom';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
 import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
 
@@ -9,6 +9,9 @@ const EditToken = () => {
   const tokenId = params.id;
   const isEdit = tokenId !== undefined;
   const [loading, setLoading] = useState(isEdit);
+  const [userQuota, setUserQuota] = useState(0);
+  let navigate = useNavigate();
+
   const originInputs = {
     name: '',
     remain_quota: isEdit ? 0 : 500000,
@@ -21,6 +24,16 @@ const EditToken = () => {
   const handleInputChange = (e, { name, value }) => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
+
+  const getUserQuota = async ()=>{
+    let res  = await API.get(`/api/user/point`);
+    const {success, message, data} = res.data;
+    if (success) {
+      setUserQuota(data.quota);
+    } else {
+      showError(message);
+    }
+  }
   const handleCancel = () => {
     navigate("/token");
   }
@@ -62,6 +75,10 @@ const EditToken = () => {
     }
   }, []);
 
+   const back = () => {
+    navigate(-1);
+   };
+
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;
     let localInputs = inputs;
@@ -88,6 +105,7 @@ const EditToken = () => {
         showSuccess('令牌创建成功，请在列表页面点击复制获取令牌！');
         setInputs(originInputs);
       }
+      navigate(-1);
     } else {
       showError(message);
     }
@@ -100,7 +118,7 @@ const EditToken = () => {
         <Form autoComplete='new-password'>
           <Form.Field>
             <Form.Input
-              label='名称'
+              label='令牌名称'
               name='name'
               placeholder={'请输入名称'}
               onChange={handleInputChange}
@@ -137,10 +155,13 @@ const EditToken = () => {
               setExpiredTime(0, 0, 0, 1);
             }}>一分钟后过期</Button>
           </div>
-          <Message>注意，令牌的额度仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</Message>
+          <Message>
+            <p>注意，令牌的配额仅用于限制令牌本身的最大额度使用量，实际的使用受到账户的剩余额度限制。</p>
+            <p>Token余额：{userQuota.toLocaleString()}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<Link to="/recharge">点击充值</Link></p>
+          </Message>
           <Form.Field>
             <Form.Input
-              label={`额度${renderQuotaWithPrompt(remain_quota)}`}
+              label={`配额Token${renderQuotaWithPrompt(remain_quota)}`}
               name='remain_quota'
               placeholder={'请输入额度'}
               onChange={handleInputChange}
@@ -150,12 +171,14 @@ const EditToken = () => {
               disabled={unlimited_quota}
             />
           </Form.Field>
+         
           <Button type={'button'} onClick={() => {
             setUnlimitedQuota();
-          }}>{unlimited_quota ? '取消无限额度' : '设为无限额度'}</Button>
+          }}>{unlimited_quota ? '取消无限配额' : '设为无限配额'}</Button>
           <Button floated='right' positive onClick={submit}>提交</Button>
           <Button floated='right' onClick={handleCancel}>取消</Button>
         </Form>
+
       </Segment>
     </>
   );

@@ -25,11 +25,20 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.GET("/oauth/wechat/bind", middleware.CriticalRateLimit(), middleware.UserAuth(), controller.WeChatBind)
 		apiRouter.GET("/oauth/email/bind", middleware.CriticalRateLimit(), middleware.UserAuth(), controller.EmailBind)
 
+		apiRouter.GET("/getSession", controller.TestController{}.GetSession)
+		apiRouter.GET("/setSession", controller.TestController{}.SetSession)
+		apiRouter.GET("/clearSession", controller.TestController{}.ClearSession)
+
 		userRoute := apiRouter.Group("/user")
 		{
 			userRoute.POST("/register", middleware.CriticalRateLimit(), middleware.TurnstileCheck(), controller.Register)
 			userRoute.POST("/login", middleware.CriticalRateLimit(), controller.Login)
 			userRoute.GET("/logout", controller.Logout)
+			//获取pushplus登录二维码
+			userRoute.GET("/wechat/getQrcode", controller.PushplusController{}.QrCode)
+			userRoute.GET("/wechat/confirmLogin", controller.PushplusController{}.ConfirmLogin)
+			//退出登录
+			userRoute.GET("/wechatLogout", controller.PushplusController{}.WechatLogout)
 
 			selfRoute := userRoute.Group("/")
 			selfRoute.Use(middleware.UserAuth())
@@ -40,6 +49,10 @@ func SetApiRouter(router *gin.Engine) {
 				selfRoute.GET("/token", controller.GenerateAccessToken)
 				selfRoute.GET("/aff", controller.GetAffCode)
 				selfRoute.POST("/topup", controller.TopUp)
+
+				//积分兑换
+				selfRoute.POST("/recharge", controller.PushplusController{}.Recharge)
+				selfRoute.GET("/point", controller.GetPoint)
 			}
 
 			adminRoute := userRoute.Group("/")

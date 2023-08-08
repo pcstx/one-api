@@ -4,7 +4,7 @@ import Loading from './components/Loading';
 import User from './pages/User';
 import { PrivateRoute } from './components/PrivateRoute';
 import RegisterForm from './components/RegisterForm';
-import LoginForm from './components/LoginForm';
+import QrCodeLogin from './components/QrCodeLogin';
 import NotFound from './pages/NotFound';
 import Setting from './pages/Setting';
 import EditUser from './pages/User/EditUser';
@@ -24,9 +24,10 @@ import EditRedemption from './pages/Redemption/EditRedemption';
 import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
+import Recharge from './pages/Recharge';
 
-const Home = lazy(() => import('./pages/Home'));
-const About = lazy(() => import('./pages/About'));
+const NewHome   = lazy(() => import('./pages/Home/home.js'));
+const NewAbout = lazy(() => import('./pages/About/home.js'));
 
 function App() {
   const [userState, userDispatch] = useContext(UserContext);
@@ -74,7 +75,7 @@ function App() {
     loadStatus().then();
     let systemName = getSystemName();
     if (systemName) {
-      document.title = systemName;
+      document.title = systemName +' - 开放平台';
     }
     let logo = getLogo();
     if (logo) {
@@ -91,7 +92,7 @@ function App() {
         path='/'
         element={
           <Suspense fallback={<Loading></Loading>}>
-            <Home />
+            <NewHome />
           </Suspense>
         }
       />
@@ -211,7 +212,7 @@ function App() {
         path='/login'
         element={
           <Suspense fallback={<Loading></Loading>}>
-            <LoginForm />
+            <QrCodeLogin />
           </Suspense>
         }
       />
@@ -260,6 +261,16 @@ function App() {
         }
       />
       <Route
+        path='/recharge'
+        element={
+        <PrivateRoute>
+          <Suspense fallback={<Loading></Loading>}>
+            <Recharge />
+          </Suspense>
+        </PrivateRoute>
+        }
+      />
+      <Route
         path='/log'
         element={
           <PrivateRoute>
@@ -271,7 +282,7 @@ function App() {
         path='/about'
         element={
           <Suspense fallback={<Loading></Loading>}>
-            <About />
+            <NewAbout />
           </Suspense>
         }
       />

@@ -17,6 +17,18 @@ type LoginRequest struct {
 	Password string `json:"password"`
 }
 
+type UserPoint struct {
+	Point int `json:"point"`
+	Quota int `json:"quota"`
+}
+
+type LoginUserInfo struct {
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+	Role     int    `json:"role"`
+	Status   int    `json:"status"`
+}
+
 func Login(c *gin.Context) {
 	if !common.PasswordLoginEnabled {
 		c.JSON(http.StatusOK, gin.H{
@@ -58,21 +70,13 @@ func Login(c *gin.Context) {
 	setupLogin(&user, c)
 }
 
-// setup session & cookies and then return user info
-func setupLogin(user *model.User, c *gin.Context) {
-	session := sessions.Default(c)
-	session.Set("id", user.Id)
-	session.Set("username", user.Username)
-	session.Set("role", user.Role)
-	session.Set("status", user.Status)
-	err := session.Save()
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "无法保存会话信息，请重试",
-			"success": false,
-		})
-		return
-	}
+func saveLoginInfo(user *model.User, c *gin.Context) model.User {
+
+	common.SetSession(c, "id", user.Id)
+	common.SetSession(c, "username", user.Username)
+	common.SetSession(c, "role", user.Role)
+	common.SetSession(c, "status", user.Status)
+
 	cleanUser := model.User{
 		Id:          user.Id,
 		Username:    user.Username,
@@ -80,6 +84,66 @@ func setupLogin(user *model.User, c *gin.Context) {
 		Role:        user.Role,
 		Status:      user.Status,
 	}
+
+	c.Set("username", user.Username)
+	c.Set("role", user.Role)
+	c.Set("id", user.Id)
+
+	return cleanUser
+}
+
+// setup session & cookies and then return user info
+func setupLogin(user *model.User, c *gin.Context) {
+
+	// isSuccess := common.SetSession(c, "loginUserInfo", &LoginUserInfo{
+	// 	Id:       user.Id,
+	// 	Username: user.Username,
+	// 	Role:     user.Role,
+	// 	Status:   user.Status,
+	// })
+	// if !isSuccess {
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"message": "无法保存会话信息，请重试",
+	// 		"success": false,
+	// 	})
+	// 	return
+	// }
+
+	common.SetSession(c, "id", user.Id)
+	common.SetSession(c, "username", user.Username)
+	common.SetSession(c, "role", user.Role)
+	success := common.SetSession(c, "status", user.Status)
+	if !success {
+		common.Error(c, "无法保存会话信息，请重试")
+		return
+	}
+
+	// session := sessions.Default(c)
+	// session.Set("id", user.Id)
+	// session.Set("username", user.Username)
+	// session.Set("role", user.Role)
+	// session.Set("status", user.Status)
+
+	// err := session.Save()
+	// if err != nil {
+	// 	c.JSON(http.StatusOK, gin.H{
+	// 		"message": "无法保存会话信息，请重试",
+	// 		"success": false,
+	// 	})
+	// 	return
+	// }
+	cleanUser := model.User{
+		Id:          user.Id,
+		Username:    user.Username,
+		DisplayName: user.DisplayName,
+		Role:        user.Role,
+		Status:      user.Status,
+	}
+
+	c.Set("username", user.Username)
+	c.Set("role", user.Role)
+	c.Set("id", user.Id)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",
 		"success": true,
@@ -326,6 +390,40 @@ func GetSelf(c *gin.Context) {
 		"success": true,
 		"message": "",
 		"data":    user,
+	})
+	return
+}
+
+func GetPoint(c *gin.Context) {
+	id := c.GetInt("id")
+	quota, err := model.GetUserQuota(id)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	session := sessions.Default(c)
+	token := session.Get("pushToken")
+	userInfo, err := getUserInfo(token.(string))
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userPoint := UserPoint{
+		Point: int(userInfo.Points),
+		Quota: quota,
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    userPoint,
 	})
 	return
 }

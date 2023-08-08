@@ -1,5 +1,5 @@
 import { toast } from 'react-toastify';
-import { toastConstants } from '../constants';
+import { toastConstants, DOMAIN } from '../constants';
 
 export function isAdmin() {
   let user = localStorage.getItem('user');
@@ -17,13 +17,13 @@ export function isRoot() {
 
 export function getSystemName() {
   let system_name = localStorage.getItem('system_name');
-  if (!system_name) return 'One API';
+  if (!system_name) return '破壳AI';
   return system_name;
 }
 
 export function getLogo() {
   let logo = localStorage.getItem('logo');
-  if (!logo) return '/logo.png';
+  if (!logo) return '/icon.png';
   return logo
 }
 
@@ -178,3 +178,37 @@ export const verifyJSON = (str) => {
   }
   return true;
 };
+
+export const setCookie = (name, value) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  // Append the "domain" attribute to the cookie string
+  const cookieString = name + '=' + value + ';expires=' + expires.toUTCString() + ';domain=' + DOMAIN;
+
+  // Set the cookie using the document.cookie property
+  document.cookie = cookieString;
+}
+
+export const setCookieWithDomain = (name, value, days, domain) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+
+  // Append the "domain" attribute to the cookie string
+  const cookieString = name + '=' + value + ';expires=' + expires.toUTCString() + ';domain=' + domain;
+
+  // Set the cookie using the document.cookie property
+  document.cookie = cookieString;
+}
+
+export const getCookie = (name) => {
+    // 从 document.cookie 字符串中解析出指定名称的 cookie 值
+    const cookieArray = document.cookie.split('; ');
+    for (const cookie of cookieArray) {
+      const [cookieName, cookieValue] = cookie.split('=');
+      if (cookieName === name) {
+        return cookieValue;
+      }
+    }
+    return '';
+}

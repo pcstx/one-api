@@ -107,7 +107,7 @@ const PersonalSetting = () => {
 
     if (success) {
       showSuccess('账户已删除！');
-      await API.get('/api/user/logout');
+      await API.get('/api/user/wechatLogout');
       userDispatch({ type: 'logout' });
       localStorage.removeItem('user');
       navigate('/login');
