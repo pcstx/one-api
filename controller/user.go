@@ -72,10 +72,10 @@ func Login(c *gin.Context) {
 
 func saveLoginInfo(user *model.User, c *gin.Context) model.User {
 
-	common.SetSession(c, "id", user.Id)
-	common.SetSession(c, "username", user.Username)
-	common.SetSession(c, "role", user.Role)
-	common.SetSession(c, "status", user.Status)
+	common.SetSession[int](c, "id", user.Id)
+	common.SetSession[string](c, "username", user.Username)
+	common.SetSession[int](c, "role", user.Role)
+	common.SetSession[int](c, "status", user.Status)
 
 	cleanUser := model.User{
 		Id:          user.Id,
@@ -109,10 +109,15 @@ func setupLogin(user *model.User, c *gin.Context) {
 	// 	return
 	// }
 
-	common.SetSession(c, "id", user.Id)
-	common.SetSession(c, "username", user.Username)
-	common.SetSession(c, "role", user.Role)
-	success := common.SetSession(c, "status", user.Status)
+	c.Set("username", user.Username)
+	c.Set("role", user.Role)
+	c.Set("id", user.Id)
+	fmt.Printf("登录时候id: %v\n", user.Id)
+
+	common.SetSession[int](c, "id", user.Id)
+	common.SetSession[string](c, "username", user.Username)
+	common.SetSession[int](c, "role", user.Role)
+	success := common.SetSession[int](c, "status", user.Status)
 	if !success {
 		common.Error(c, "无法保存会话信息，请重试")
 		return
@@ -139,10 +144,6 @@ func setupLogin(user *model.User, c *gin.Context) {
 		Role:        user.Role,
 		Status:      user.Status,
 	}
-
-	c.Set("username", user.Username)
-	c.Set("role", user.Role)
-	c.Set("id", user.Id)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "",

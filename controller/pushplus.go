@@ -85,7 +85,7 @@ func (con PushplusController) ConfirmLogin(c *gin.Context) {
 
 	//设置cookie，实现单点登录
 	common.AddPushToken(c, token)
-	common.SetSession(c, "pushToken", token)
+	common.SetSession[string](c, "pushToken", token)
 
 	//根据token获取pushplus中用户详情
 	userInfo, _ := GetMyInfo(token)

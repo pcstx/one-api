@@ -36,7 +36,7 @@ func authHelper(c *gin.Context, minRole int) {
 			//等于登录逻辑
 			userInfo, _ := controller.GetMyInfo(pushToken)
 			if userInfo != nil && userInfo.Id > 0 {
-				common.SetSession(c, "pushToken", pushToken)
+				common.SetSession[string](c, "pushToken", pushToken)
 				controller.AuthLogin(c, userInfo)
 			} else {
 				//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)

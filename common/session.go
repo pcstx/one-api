@@ -16,7 +16,7 @@ func GetSession[T any](c *gin.Context, key string) T {
 	return t
 }
 
-func SetSession(c *gin.Context, key string, value interface{}) bool {
+func SetSession[T any](c *gin.Context, key string, value T) bool {
 	session := sessions.Default(c)
 	session.Set(key, value)
 	err := session.Save()

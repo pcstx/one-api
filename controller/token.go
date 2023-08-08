@@ -12,8 +12,12 @@ import (
 
 func GetAllTokens(c *gin.Context) {
 	userId := c.GetInt("id")
+	fmt.Printf("cookie中的userId=%v\n", userId)
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+	fmt.Printf("session中的userId=%v\n", userId)
 
-	fmt.Printf("userId=%v", userId)
 	p, _ := strconv.Atoi(c.Query("p"))
 	if p < 0 {
 		p = 0
@@ -36,6 +40,10 @@ func GetAllTokens(c *gin.Context) {
 
 func SearchTokens(c *gin.Context) {
 	userId := c.GetInt("id")
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+
 	keyword := c.Query("keyword")
 	tokens, err := model.SearchUserTokens(userId, keyword)
 	if err != nil {
@@ -55,7 +63,6 @@ func SearchTokens(c *gin.Context) {
 
 func GetToken(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-	userId := c.GetInt("id")
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -63,6 +70,14 @@ func GetToken(c *gin.Context) {
 		})
 		return
 	}
+
+	userId := c.GetInt("id")
+	fmt.Printf("c.GetInt中的userId=%v\n", userId)
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+	fmt.Printf("session中的userId=%v\n", userId)
+
 	token, err := model.GetTokenByIds(id, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -120,8 +135,15 @@ func AddToken(c *gin.Context) {
 		})
 		return
 	}
+	userId := c.GetInt("id")
+	fmt.Printf("c.GetInt中的userId=%v", userId)
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+	fmt.Printf("session中的userId=%v", userId)
+
 	cleanToken := model.Token{
-		UserId:         c.GetInt("id"),
+		UserId:         userId,
 		Name:           token.Name,
 		Key:            common.GenerateKey(),
 		CreatedTime:    common.GetTimestamp(),
@@ -148,6 +170,10 @@ func AddToken(c *gin.Context) {
 func DeleteToken(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	userId := c.GetInt("id")
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+
 	err := model.DeleteTokenById(id, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -165,6 +191,10 @@ func DeleteToken(c *gin.Context) {
 
 func UpdateToken(c *gin.Context) {
 	userId := c.GetInt("id")
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+
 	statusOnly := c.Query("status_only")
 	token := model.Token{}
 	err := c.ShouldBindJSON(&token)
