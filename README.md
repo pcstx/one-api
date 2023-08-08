@@ -346,3 +346,9 @@ https://openai.justsong.cn
 
 ## 
 前端判断是否登录通过PrivateRoute方法中，判断localStore中是否有user。没有的直接跳转登录页面
+
+
+docker build --platform linux/amd64 --pull --rm -f "Dockerfile" -t registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:3 . 
+docker push registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:3
+
+

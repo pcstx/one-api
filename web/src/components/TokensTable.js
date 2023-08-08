@@ -333,7 +333,7 @@ const TokensTable = () => {
                   <Table.Cell>{token.expired_time === -1 ? '永不过期' : renderTimestamp(token.expired_time)}</Table.Cell>
                   <Table.Cell>
                     <div>
-                    <Button.Group color='green' size={'small'}>
+                    {/* <Button.Group color='green' size={'small'}> */}
                         <Button
                           size={'small'}
                           positive
@@ -341,9 +341,9 @@ const TokensTable = () => {
                             await onCopy('', token.key);
                           }}
                         >
-                          复制
+                          复制令牌
                         </Button>
-                        <Dropdown
+                        {/* <Dropdown
                           className='button icon'
                           floating
                           options={COPY_OPTIONS.map(option => ({
@@ -355,8 +355,8 @@ const TokensTable = () => {
                           trigger={<></>}
                         />
                       </Button.Group>
-                      {' '}
-                      <Button.Group color='blue' size={'small'}>
+                      {' '} */}
+                      {/* <Button.Group color='blue' size={'small'}>
                         <Button
                             size={'small'}
                             positive
@@ -376,7 +376,7 @@ const TokensTable = () => {
                             }))}       
                             trigger={<></>}   
                           />
-                      </Button.Group>
+                      </Button.Group> */}
                       {' '}
                       <Popup
                         trigger={
