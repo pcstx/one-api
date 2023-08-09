@@ -3,8 +3,9 @@ package model
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
+
+	"gorm.io/gorm"
 )
 
 type Token struct {
@@ -19,6 +20,13 @@ type Token struct {
 	RemainQuota    int    `json:"remain_quota" gorm:"default:0"`
 	UnlimitedQuota bool   `json:"unlimited_quota" gorm:"default:false"`
 	UsedQuota      int    `json:"used_quota" gorm:"default:0"` // used quota
+	IsDefault      int    `json:"is_default" gorm:"default:0"` // 是否是默认令牌
+}
+
+type TokenQuota struct {
+	RemainQuota    int  `json:"remain_quota" gorm:"default:0"`
+	UnlimitedQuota bool `json:"unlimited_quota" gorm:"default:false"`
+	UsedQuota      int  `json:"used_quota" gorm:"default:0"` // used quota
 }
 
 func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
@@ -88,6 +96,17 @@ func GetTokenById(id int) (*Token, error) {
 	var err error = nil
 	err = DB.First(&token, "id = ?", id).Error
 	return &token, err
+}
+
+func GetTokenQuota(userId int, key string) (tokenQuota TokenQuota, err error) {
+	err = DB.Table("tokens").Select("remain_quota", "unlimited_quota", "used_quota").Where("user_id = ?", userId).Where("key = ?", key).Scan(&tokenQuota).Error
+	return tokenQuota, err
+}
+
+func SetDefaultToken(userId int, key string) error {
+	var err error
+	err = DB.Exec("update tokens set is_default=1 where user_id=? and key=?", userId, key).Error
+	return err
 }
 
 func (token *Token) Insert() error {

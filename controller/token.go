@@ -118,6 +118,69 @@ func GetTokenStatus(c *gin.Context) {
 	})
 }
 
+/**
+ * @api {get} /api/token/quota 获取令牌额度
+**/
+func GetTokenQuota(c *gin.Context) {
+	token := c.DefaultQuery("token", "")
+	userId := c.GetInt("id")
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+
+	if userId == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "用户未登录",
+		})
+		return
+	}
+
+	tokenQuota, err := model.GetTokenQuota(userId, token)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    tokenQuota,
+	})
+}
+
+func SetDefaultToken(c *gin.Context) {
+	token := c.DefaultQuery("token", "")
+	userId := c.GetInt("id")
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+
+	if userId == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": "用户未登录",
+		})
+		return
+	}
+	err := model.SetDefaultToken(userId, token)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+	})
+}
+
 func AddToken(c *gin.Context) {
 	token := model.Token{}
 	err := c.ShouldBindJSON(&token)

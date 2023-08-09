@@ -97,6 +97,8 @@ func SetApiRouter(router *gin.Engine) {
 			tokenRoute.POST("/", controller.AddToken)
 			tokenRoute.PUT("/", controller.UpdateToken)
 			tokenRoute.DELETE("/:id", controller.DeleteToken)
+			tokenRoute.PUT("/tokenQuota", controller.GetTokenQuota)
+			tokenRoute.PUT("/setDefault", controller.SetDefaultToken)
 		}
 		redemptionRoute := apiRouter.Group("/redemption")
 		redemptionRoute.Use(middleware.AdminAuth())
