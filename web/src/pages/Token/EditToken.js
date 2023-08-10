@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Message, Segment } from 'semantic-ui-react';
 import { useParams,useNavigate,Link } from 'react-router-dom';
 import { API, showError, showSuccess, timestamp2string } from '../../helpers';
-import { renderQuota, renderQuotaWithPrompt } from '../../helpers/render';
+import { renderQuotaWithPrompt } from '../../helpers/render';
 
 const EditToken = () => {
   const params = useParams();
@@ -24,15 +24,15 @@ const EditToken = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
-  const getUserQuota = async ()=>{
-    let res  = await API.get(`/api/user/point`);
-    const {success, message, data} = res.data;
-    if (success) {
-      setUserQuota(data.quota);
-    } else {
-      showError(message);
-    }
-  }
+  // const getUserQuota = async ()=>{
+  //   let res  = await API.get(`/api/user/point`);
+  //   const {success, message, data} = res.data;
+  //   if (success) {
+  //     setUserQuota(data.quota);
+  //   } else {
+  //     showError(message);
+  //   }
+  // }
   const handleCancel = () => {
     navigate("/token");
   }
@@ -74,9 +74,9 @@ const EditToken = () => {
     }
   }, []);
 
-   const back = () => {
-    navigate(-1);
-   };
+  //  const back = () => {
+  //   navigate(-1);
+  //  };
 
   const submit = async () => {
     if (!isEdit && inputs.name === '') return;

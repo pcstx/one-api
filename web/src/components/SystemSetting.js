@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Divider, Form, Grid, Header, Input, Message } from 'semantic-ui-react';
+import { Button, Divider, Form, Grid, Header, Message } from 'semantic-ui-react';
 import { API, removeTrailingSlash, showError } from '../helpers';
 
 const SystemSetting = () => {

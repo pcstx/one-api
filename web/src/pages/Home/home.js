@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Card, Grid, Header, Segment, Container,Button } from 'semantic-ui-react';
+import { Container,Button } from 'semantic-ui-react';
 import { API, showError, showNotice } from '../../helpers';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { StatusContext } from '../../context/Status';
-import { marked } from 'marked';
 
 const NewHome = () => {
   const [statusState, statusDispatch] = useContext(StatusContext);

@@ -1,20 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Button, Divider, Form, Grid, Header, Image, Message, Modal, Segment } from 'semantic-ui-react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Navigate,useLocation } from 'react-router-dom';
+import { Form, Grid, Header, Image,Segment } from 'semantic-ui-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { API, getLogo, showError, showSuccess,setCookie } from '../helpers';
+import { API, getLogo, showError, showSuccess } from '../helpers';
 import Loading from '../components/Loading';
 
-const QrCodeLogin = () => {
-  const [inputs, setInputs] = useState({
-    username: '',
-    password: '',
-    wechat_verification_code: ''
-  });
+const QrCodeLogin = () => { 
   const [searchParams, setSearchParams] = useSearchParams();  
-  const [qrCodeUrl, setQrCodeUrl] = useState({});
-  const [qrCode, setQrCode] = useState({});
+  const [qrCodeUrl, setQrCodeUrl] = useState({}); 
   const [userState, userDispatch] = useContext(UserContext);
   const [isDivVisible, setIsDivVisible] = useState(false);
 
