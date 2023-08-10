@@ -15,7 +15,6 @@ ENV GO111MODULE=on \
 WORKDIR /build
 COPY . .
 # COPY --from=builder /build/build ./web/build
-COPY /build/build ./web/build
 RUN go mod download
 RUN go build -ldflags "-s -w -X 'one-api/common.Version=$(cat VERSION)' -extldflags '-static'" -o one-api
 
