@@ -28,7 +28,7 @@ func Distribute() func(c *gin.Context) {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"error": gin.H{
 						"message": "无效的渠道 ID",
-						"type":    "one_api_error",
+						"type":    "perkai_api_error",
 					},
 				})
 				c.Abort()
@@ -39,7 +39,7 @@ func Distribute() func(c *gin.Context) {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"error": gin.H{
 						"message": "无效的渠道 ID",
-						"type":    "one_api_error",
+						"type":    "perkai_api_error",
 					},
 				})
 				c.Abort()
@@ -49,7 +49,7 @@ func Distribute() func(c *gin.Context) {
 				c.JSON(http.StatusForbidden, gin.H{
 					"error": gin.H{
 						"message": "该渠道已被禁用",
-						"type":    "one_api_error",
+						"type":    "perkai_api_error",
 					},
 				})
 				c.Abort()
@@ -63,7 +63,7 @@ func Distribute() func(c *gin.Context) {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"error": gin.H{
 						"message": "无效的请求",
-						"type":    "one_api_error",
+						"type":    "perkai_api_error",
 					},
 				})
 				c.Abort()
@@ -94,7 +94,7 @@ func Distribute() func(c *gin.Context) {
 				c.JSON(http.StatusServiceUnavailable, gin.H{
 					"error": gin.H{
 						"message": message,
-						"type":    "one_api_error",
+						"type":    "perkai_api_error",
 					},
 				})
 				c.Abort()

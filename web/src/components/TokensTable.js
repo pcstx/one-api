@@ -96,24 +96,24 @@ const TokensTable = () => {
     let nextUrl;
   
     if (nextLink) {
-      nextUrl = nextLink + `/#/?settings={"key":"sk-${key}"}`;
+      nextUrl = nextLink + `/#/?settings={"key":"sp-${key}"}`;
     } else {
-      nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sp-${key}","url":"${serverAddress}"}`;
     }
 
     let url;
     switch (type) {
       case 'ama':
-        url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
+        url = `ama://set-api-key?server=${encodedServerAddress}&key=sp-${key}`;
         break;
       case 'opencat':
-        url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
+        url = `opencat://team/join?domain=${encodedServerAddress}&token=sp-${key}`;
         break;
       case 'next':
         url = nextUrl;
         break;
       default:
-        url = `sk-${key}`;
+        url = `sp-${key}`;
     }
     if (await copy(url)) {
       showSuccess('已复制到剪贴板！');
@@ -138,18 +138,18 @@ const TokensTable = () => {
     let defaultUrl;
   
     if (chatLink) {
-      defaultUrl = chatLink + `/#/?settings={"key":"sk-${key}"}`;
+      defaultUrl = chatLink + `/#/?settings={"key":"sp-${key}"}`;
     } else {
-      defaultUrl = `https://chat.oneapi.pro/#/?settings={"key":"sk-${key}","url":"${serverAddress}"}`;
+      defaultUrl = `https://chat.oneapi.pro/#/?settings={"key":"sp-${key}","url":"${serverAddress}"}`;
     }
     let url;
     switch (type) {
       case 'ama':
-        url = `ama://set-api-key?server=${encodedServerAddress}&key=sk-${key}`;
+        url = `ama://set-api-key?server=${encodedServerAddress}&key=sp-${key}`;
         break;
   
       case 'opencat':
-        url = `opencat://team/join?domain=${encodedServerAddress}&token=sk-${key}`;
+        url = `opencat://team/join?domain=${encodedServerAddress}&token=sp-${key}`;
         break;
         
       default:

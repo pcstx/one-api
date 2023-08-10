@@ -196,7 +196,7 @@ func Relay(c *gin.Context) {
 func RelayNotImplemented(c *gin.Context) {
 	err := OpenAIError{
 		Message: "API not implemented",
-		Type:    "one_api_error",
+		Type:    "perkai_api_error",
 		Param:   "",
 		Code:    "api_not_implemented",
 	}
@@ -208,7 +208,7 @@ func RelayNotImplemented(c *gin.Context) {
 func RelayNotFound(c *gin.Context) {
 	err := OpenAIError{
 		Message: fmt.Sprintf("API not found: %s:%s", c.Request.Method, c.Request.URL.Path),
-		Type:    "one_api_error",
+		Type:    "perkai_api_error",
 		Param:   "",
 		Code:    "api_not_found",
 	}

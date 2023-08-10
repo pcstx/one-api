@@ -2,8 +2,9 @@ package controller
 
 import (
 	"fmt"
-	"github.com/pkoukk/tiktoken-go"
 	"one-api/common"
+
+	"github.com/pkoukk/tiktoken-go"
 )
 
 var tokenEncoderMap = map[string]*tiktoken.Tiktoken{}
@@ -83,7 +84,7 @@ func countTokenText(text string, model string) int {
 func errorWrapper(err error, code string, statusCode int) *OpenAIErrorWithStatusCode {
 	openAIError := OpenAIError{
 		Message: err.Error(),
-		Type:    "one_api_error",
+		Type:    "perkai_api_error",
 		Code:    code,
 	}
 	return &OpenAIErrorWithStatusCode{
