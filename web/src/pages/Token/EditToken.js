@@ -13,9 +13,9 @@ const EditToken = () => {
 
   const originInputs = {
     name: '',
-    remain_quota: isEdit ? 0 : 500000,
+    remain_quota: isEdit ? 0 : 5000000,
     expired_time: -1,
-    unlimited_quota: false
+    unlimited_quota: true
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
