@@ -316,3 +316,10 @@ func xunfeiHandler(c *gin.Context, resp *http.Response) (*OpenAIErrorWithStatusC
 	_, err = c.Writer.Write(jsonResponse)
 	return nil, &fullTextResponse.Usage
 }
+
+func HmacWithShaTobase64(algorithm, data, key string) string {
+	mac := hmac.New(sha256.New, []byte(key))
+	mac.Write([]byte(data))
+	encodeData := mac.Sum(nil)
+	return base64.StdEncoding.EncodeToString(encodeData)
+}
