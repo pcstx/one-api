@@ -36,6 +36,13 @@ type Recharge struct {
 	Token     string `json:"token"`
 }
 
+type TokenOrder struct {
+	OrderPrice float64 `json:"orderPrice"`
+	UserId     int     `json:"userId"`
+	OpenId     string  `json:"openId"`
+	Token      string  `json:"token"`
+}
+
 func getQrCodeUrl() (*Data, error) {
 
 	url := fmt.Sprintf("%s/common/wechat/getQrcode", common.PushPlusApiUrl)
@@ -313,4 +320,57 @@ func (con PushplusController) Recharge(c *gin.Context) {
 		common.Error(c, "充值失败")
 		return
 	}
+}
+
+func perkTokenOrder(tokenOrder *TokenOrder) (string, error) {
+	url := fmt.Sprintf("%s/customer/payPage/tokenOrder?orderPrice=%s&userId=%s&openId=%s", common.PushPlusApiUrl, tokenOrder.OrderPrice, tokenOrder.UserId, tokenOrder.OpenId)
+	result, err := common.HttpGet[string](url, tokenOrder.Token)
+	if err != nil {
+		fmt.Println(err.Error())
+		return "", err
+	}
+
+	return result.Data, err
+}
+
+func (con PushplusController) TokenOrder(c *gin.Context) {
+	orderPriceStr := c.Query("orderPrice")
+
+	// 将字符串转换为 float32
+	orderPrice, err := strconv.ParseFloat(orderPriceStr, 32)
+	if err != nil {
+		fmt.Println("无法将字符串转换为浮点数:", err)
+		return
+	}
+
+	//服务端校验
+	if orderPrice <= 1 {
+		common.Error(c, "充值金额最少1元")
+		return
+	}
+
+	var tokenOrder TokenOrder
+
+	//获取请求token
+	token := common.GetSession[string](c, "pushToken")
+	userId := common.GetSession[int](c, "id")
+
+	user, err := model.GetUserById(userId, false)
+	if err != nil {
+		common.Error(c, err.Error())
+		return
+	}
+	tokenOrder.OpenId = user.WeChatId
+	tokenOrder.Token = token
+	tokenOrder.UserId = userId
+	tokenOrder.OrderPrice = orderPrice
+
+	result, err := perkTokenOrder(&tokenOrder)
+	if err != nil {
+		common.Error(c, err.Error())
+		return
+	}
+
+	common.Success(c, result)
+	return
 }
