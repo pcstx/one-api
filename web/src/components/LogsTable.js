@@ -45,6 +45,7 @@ const LogsTable = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
+  const [totalPages,setTotalPages] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
   const [logType, setLogType] = useState(0);
@@ -102,15 +103,12 @@ const LogsTable = () => {
       url = `/api/log/self/?p=${startIdx}&type=${logType}&token_name=${token_name}&model_name=${model_name}&start_timestamp=${localStartTimestamp}&end_timestamp=${localEndTimestamp}`;
     }
     const res = await API.get(url);
-    const { success, message, data } = res.data;
-    if (success) {
-      if (startIdx === 0) {
-        setLogs(data);
-      } else {
-        let newLogs = [...logs];
-        newLogs.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-        setLogs(newLogs);
-      }
+    const { success, message, data, pages, currentPage } = res.data;
+    if (success) { 
+      setLogs([]);
+      setLogs(data);
+      setTotalPages(pages);
+      setActivePage(currentPage);
     } else {
       showError(message);
     }
@@ -119,17 +117,17 @@ const LogsTable = () => {
 
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
-      if (activePage === Math.ceil(logs.length / ITEMS_PER_PAGE) + 1) {
+      //if (activePage === Math.ceil(logs.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
-        await loadLogs(activePage - 1);
-      }
+      await loadLogs(activePage - 1);
+      //}
       setActivePage(activePage);
     })();
   };
 
   const refresh = async () => {
     setLoading(true);
-    setActivePage(1)
+    setActivePage(0)
     await loadLogs(0);
     if (isAdminUser) {
       getLogStat().then();
@@ -305,10 +303,10 @@ const LogsTable = () => {
 
           <Table.Body>
             {logs
-              .slice(
-                (activePage - 1) * ITEMS_PER_PAGE,
-                activePage * ITEMS_PER_PAGE
-              )
+              // .slice(
+              //   (activePage - 1) * ITEMS_PER_PAGE,
+              //   activePage * ITEMS_PER_PAGE
+              // )
               .map((log, idx) => {
                 if (log.deleted) return <></>;
                 return (
@@ -351,10 +349,11 @@ const LogsTable = () => {
                   onPageChange={onPaginationChange}
                   size='small'
                   siblingRange={1}
-                  totalPages={
-                    Math.ceil(logs.length / ITEMS_PER_PAGE) +
-                    (logs.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
-                  }
+                  totalPages={totalPages}
+                  // totalPages={
+                  //   Math.ceil(logs.length / ITEMS_PER_PAGE) +
+                  //   (logs.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
+                  // }
                 />
               </Table.HeaderCell>
             </Table.Row>

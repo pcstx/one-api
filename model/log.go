@@ -1,8 +1,10 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"one-api/common"
+
+	paginator "github.com/yafeng-Soong/gorm-paginator"
+	"gorm.io/gorm"
 )
 
 type Log struct {
@@ -92,6 +94,37 @@ func GetAllLogs(logType int, startTimestamp int64, endTimestamp int64, modelName
 	return logs, err
 }
 
+func GetAllLogsPageList(logType int, startTimestamp int64, endTimestamp int64, modelName string, username string, tokenName string, currentPage int64, pageSize int64) (page paginator.Page[Log], err error) {
+	var tx *gorm.DB
+	if logType == LogTypeUnknown {
+		tx = DB
+	} else {
+		tx = DB.Where("type = ?", logType)
+	}
+	if modelName != "" {
+		tx = tx.Where("model_name = ?", modelName)
+	}
+	if username != "" {
+		tx = tx.Where("username = ?", username)
+	}
+	if tokenName != "" {
+		tx = tx.Where("token_name = ?", tokenName)
+	}
+	if startTimestamp != 0 {
+		tx = tx.Where("created_at >= ?", startTimestamp)
+	}
+	if endTimestamp != 0 {
+		tx = tx.Where("created_at <= ?", endTimestamp)
+	}
+
+	tx.Order("id desc")
+
+	page = paginator.Page[Log]{CurrentPage: currentPage, PageSize: pageSize}
+	// 传入查询条件，执行分页查询
+	err = page.SelectPages(tx)
+	return page, err
+}
+
 func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int64, modelName string, tokenName string, startIdx int, num int) (logs []*Log, err error) {
 	var tx *gorm.DB
 	if logType == LogTypeUnknown {
@@ -113,6 +146,34 @@ func GetUserLogs(userId int, logType int, startTimestamp int64, endTimestamp int
 	}
 	err = tx.Order("id desc").Limit(num).Offset(startIdx).Omit("id").Find(&logs).Error
 	return logs, err
+}
+
+func GetUserLogsPageList(userId int, logType int, startTimestamp int64, endTimestamp int64, modelName string, tokenName string, currentPage int64, pageSize int64) (page paginator.Page[Log], err error) {
+	var tx *gorm.DB
+	if logType == LogTypeUnknown {
+		tx = DB.Where("user_id = ?", userId)
+	} else {
+		tx = DB.Where("user_id = ? and type = ?", userId, logType)
+	}
+	if modelName != "" {
+		tx = tx.Where("model_name = ?", modelName)
+	}
+	if tokenName != "" {
+		tx = tx.Where("token_name = ?", tokenName)
+	}
+	if startTimestamp != 0 {
+		tx = tx.Where("created_at >= ?", startTimestamp)
+	}
+	if endTimestamp != 0 {
+		tx = tx.Where("created_at <= ?", endTimestamp)
+	}
+
+	tx.Order("id desc").Omit("id")
+
+	page = paginator.Page[Log]{CurrentPage: currentPage, PageSize: pageSize}
+	// 传入查询条件，执行分页查询
+	err = page.SelectPages(tx)
+	return page, err
 }
 
 func SearchAllLogs(keyword string) (logs []*Log, err error) {

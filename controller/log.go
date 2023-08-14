@@ -1,14 +1,15 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 func GetAllLogs(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("p"))
+	p, _ := strconv.ParseInt(c.Query("p"), 10, 64)
 	if p < 0 {
 		p = 0
 	}
@@ -18,7 +19,7 @@ func GetAllLogs(c *gin.Context) {
 	username := c.Query("username")
 	tokenName := c.Query("token_name")
 	modelName := c.Query("model_name")
-	logs, err := model.GetAllLogs(logType, startTimestamp, endTimestamp, modelName, username, tokenName, p*common.ItemsPerPage, common.ItemsPerPage)
+	page, err := model.GetAllLogsPageList(logType, startTimestamp, endTimestamp, modelName, username, tokenName, p+1, int64(common.ItemsPerPage))
 	if err != nil {
 		c.JSON(200, gin.H{
 			"success": false,
@@ -27,14 +28,19 @@ func GetAllLogs(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"success": true,
-		"message": "",
-		"data":    logs,
+		"success":     true,
+		"message":     "",
+		"data":        page.Data,
+		"total":       page.Total,
+		"pages":       page.Pages,
+		"currentPage": page.CurrentPage,
+		"pageSize":    page.PageSize,
 	})
 }
 
 func GetUserLogs(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("p"))
+	//获取页数
+	p, _ := strconv.ParseInt(c.Query("p"), 10, 64)
 	if p < 0 {
 		p = 0
 	}
@@ -44,7 +50,7 @@ func GetUserLogs(c *gin.Context) {
 	endTimestamp, _ := strconv.ParseInt(c.Query("end_timestamp"), 10, 64)
 	tokenName := c.Query("token_name")
 	modelName := c.Query("model_name")
-	logs, err := model.GetUserLogs(userId, logType, startTimestamp, endTimestamp, modelName, tokenName, p*common.ItemsPerPage, common.ItemsPerPage)
+	page, err := model.GetUserLogsPageList(userId, logType, startTimestamp, endTimestamp, modelName, tokenName, p+1, int64(common.ItemsPerPage))
 	if err != nil {
 		c.JSON(200, gin.H{
 			"success": false,
@@ -53,9 +59,13 @@ func GetUserLogs(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"success": true,
-		"message": "",
-		"data":    logs,
+		"success":     true,
+		"message":     "",
+		"data":        page.Data,
+		"total":       page.Total,
+		"pages":       page.Pages,
+		"currentPage": page.CurrentPage,
+		"pageSize":    page.PageSize,
 	})
 }
 
