@@ -306,7 +306,7 @@ const LogsTable = () => {
               .map((log, idx) => {
                 if (log.deleted) return <></>;
                 return (
-                  <Table.Row key={log.idx}>
+                  <Table.Row key={log.id}>
                     <Table.Cell>{renderTimestamp(log.created_at)}</Table.Cell>
                     {
                       isAdminUser && (

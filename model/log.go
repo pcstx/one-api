@@ -168,7 +168,7 @@ func GetUserLogsPageList(userId int, logType int, startTimestamp int64, endTimes
 		tx = tx.Where("created_at <= ?", endTimestamp)
 	}
 
-	tx.Order("id desc").Omit("id")
+	tx.Order("id desc")
 
 	page = paginator.Page[Log]{CurrentPage: currentPage, PageSize: pageSize}
 	// 传入查询条件，执行分页查询
