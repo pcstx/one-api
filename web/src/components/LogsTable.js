@@ -303,14 +303,10 @@ const LogsTable = () => {
 
           <Table.Body>
             {logs
-              // .slice(
-              //   (activePage - 1) * ITEMS_PER_PAGE,
-              //   activePage * ITEMS_PER_PAGE
-              // )
               .map((log, idx) => {
                 if (log.deleted) return <></>;
                 return (
-                  <Table.Row key={log.created_at}>
+                  <Table.Row key={log.idx}>
                     <Table.Cell>{renderTimestamp(log.created_at)}</Table.Cell>
                     {
                       isAdminUser && (
