@@ -23,20 +23,25 @@ const UsersTable = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
+  const [totalPages,setTotalPages] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
 
   const loadUsers = async (startIdx) => {
     const res = await API.get(`/api/user/?p=${startIdx}`);
-    const { success, message, data } = res.data;
+    const { success, message, data,pages, currentPage } = res.data;
     if (success) {
-      if (startIdx === 0) {
-        setUsers(data);
-      } else {
-        let newUsers = users;
-        newUsers.push(...data);
-        setUsers(newUsers);
-      }
+      // if (startIdx === 0) {
+      //   setUsers(data);
+      // } else {
+      //   let newUsers = users;
+      //   newUsers.push(...data);
+      //   setUsers(newUsers);
+      // }
+      setUsers([]);
+      setUsers(data);
+      setTotalPages(pages);
+      setActivePage(currentPage);
     } else {
       showError(message);
     }
@@ -45,10 +50,10 @@ const UsersTable = () => {
 
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
-      if (activePage === Math.ceil(users.length / ITEMS_PER_PAGE) + 1) {
+      //if (activePage === Math.ceil(users.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
         await loadUsers(activePage - 1);
-      }
+      //}
       setActivePage(activePage);
     })();
   };
@@ -114,10 +119,11 @@ const UsersTable = () => {
     }
     setSearching(true);
     const res = await API.get(`/api/user/search?keyword=${searchKeyword}`);
-    const { success, message, data } = res.data;
+    const { success, message, data,pages, currentPage } = res.data;
     if (success) {
       setUsers(data);
-      setActivePage(1);
+      setTotalPages(pages);
+      setActivePage(currentPage);
     } else {
       showError(message);
     }
@@ -213,10 +219,10 @@ const UsersTable = () => {
 
         <Table.Body>
           {users
-            .slice(
-              (activePage - 1) * ITEMS_PER_PAGE,
-              activePage * ITEMS_PER_PAGE
-            )
+            // .slice(
+            //   (activePage - 1) * ITEMS_PER_PAGE,
+            //   activePage * ITEMS_PER_PAGE
+            // )
             .map((user, idx) => {
               if (user.deleted) return <></>;
               return (
@@ -322,10 +328,7 @@ const UsersTable = () => {
                 onPageChange={onPaginationChange}
                 size='small'
                 siblingRange={1}
-                totalPages={
-                  Math.ceil(users.length / ITEMS_PER_PAGE) +
-                  (users.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
-                }
+                totalPages={totalPages}
               />
             </Table.HeaderCell>
           </Table.Row>

@@ -31,20 +31,25 @@ const RedemptionsTable = () => {
   const [redemptions, setRedemptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
+  const [totalPages,setTotalPages] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
 
   const loadRedemptions = async (startIdx) => {
     const res = await API.get(`/api/redemption/?p=${startIdx}`);
-    const { success, message, data } = res.data;
+    const { success, message, data, pages, currentPage } = res.data;
     if (success) {
-      if (startIdx === 0) {
-        setRedemptions(data);
-      } else {
-        let newRedemptions = redemptions;
-        newRedemptions.push(...data);
-        setRedemptions(newRedemptions);
-      }
+      // if (startIdx === 0) {
+      //   setRedemptions(data);
+      // } else {
+      //   let newRedemptions = redemptions;
+      //   newRedemptions.push(...data);
+      //   setRedemptions(newRedemptions);
+      // }
+      setRedemptions([]);
+      setRedemptions(data);
+      setTotalPages(pages);
+      setActivePage(currentPage);
     } else {
       showError(message);
     }
@@ -53,10 +58,10 @@ const RedemptionsTable = () => {
 
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
-      if (activePage === Math.ceil(redemptions.length / ITEMS_PER_PAGE) + 1) {
+      //if (activePage === Math.ceil(redemptions.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
         await loadRedemptions(activePage - 1);
-      }
+      //}
       setActivePage(activePage);
     })();
   };
@@ -111,10 +116,11 @@ const RedemptionsTable = () => {
     }
     setSearching(true);
     const res = await API.get(`/api/redemption/search?keyword=${searchKeyword}`);
-    const { success, message, data } = res.data;
+    const { success, message, data, pages, currentPage } = res.data;
     if (success) {
       setRedemptions(data);
-      setActivePage(1);
+      setTotalPages(pages);
+      setActivePage(currentPage);
     } else {
       showError(message);
     }
@@ -210,10 +216,10 @@ const RedemptionsTable = () => {
 
         <Table.Body>
           {redemptions
-            .slice(
-              (activePage - 1) * ITEMS_PER_PAGE,
-              activePage * ITEMS_PER_PAGE
-            )
+            // .slice(
+            //   (activePage - 1) * ITEMS_PER_PAGE,
+            //   activePage * ITEMS_PER_PAGE
+            // )
             .map((redemption, idx) => {
               if (redemption.deleted) return <></>;
               return (
@@ -288,10 +294,7 @@ const RedemptionsTable = () => {
                 onPageChange={onPaginationChange}
                 size='small'
                 siblingRange={1}
-                totalPages={
-                  Math.ceil(redemptions.length / ITEMS_PER_PAGE) +
-                  (redemptions.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
-                }
+                totalPages={totalPages}
               />
             </Table.HeaderCell>
           </Table.Row>

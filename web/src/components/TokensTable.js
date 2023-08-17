@@ -44,6 +44,7 @@ const TokensTable = () => {
   const [tokens, setTokens] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activePage, setActivePage] = useState(1);
+  const [totalPages,setTotalPages] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
@@ -51,15 +52,19 @@ const TokensTable = () => {
 
   const loadTokens = async (startIdx) => {
     const res = await API.get(`/api/token/?p=${startIdx}`);
-    const { success, message, data } = res.data;
+    const { success, message, data, pages, currentPage } = res.data;
     if (success) {
-      if (startIdx === 0) {
-        setTokens(data);
-      } else {
-        let newTokens = [...tokens];
-        newTokens.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
-        setTokens(newTokens);
-      }
+      // if (startIdx === 0) {
+      //   setTokens(data);
+      // } else {
+      //   let newTokens = [...tokens];
+      //   newTokens.splice(startIdx * ITEMS_PER_PAGE, data.length, ...data);
+      //   setTokens(newTokens);
+      // }
+      setTokens([]);
+      setTokens(data);
+      setTotalPages(pages);
+      setActivePage(currentPage);
     } else {
       showError(message);
     }
@@ -68,16 +73,17 @@ const TokensTable = () => {
 
   const onPaginationChange = (e, { activePage }) => {
     (async () => {
-      if (activePage === Math.ceil(tokens.length / ITEMS_PER_PAGE) + 1) {
+      //if (activePage === Math.ceil(tokens.length / ITEMS_PER_PAGE) + 1) {
         // In this case we have to load more data and then append them.
         await loadTokens(activePage - 1);
-      }
+      //}
       setActivePage(activePage);
     })();
   };
 
   const refresh = async () => {
     setLoading(true);
+    setSearchKeyword('');
     await loadTokens(activePage - 1);
   };
 
@@ -209,10 +215,11 @@ const TokensTable = () => {
     }
     setSearching(true);
     const res = await API.get(`/api/token/search?keyword=${searchKeyword}`);
-    const { success, message, data } = res.data;
+    const { success, message, data,pages, currentPage } = res.data;
     if (success) {
       setTokens(data);
-      setActivePage(1);
+      setTotalPages(pages);
+      setActivePage(currentPage);
     } else {
       showError(message);
     }
@@ -316,10 +323,10 @@ const TokensTable = () => {
 
         <Table.Body>
           {tokens
-            .slice(
-              (activePage - 1) * ITEMS_PER_PAGE,
-              activePage * ITEMS_PER_PAGE
-            )
+            // .slice(
+            //   (activePage - 1) * ITEMS_PER_PAGE,
+            //   activePage * ITEMS_PER_PAGE
+            // )
             .map((token, idx) => {
               if (token.deleted) return <></>;
               return (
@@ -436,10 +443,7 @@ const TokensTable = () => {
                 onPageChange={onPaginationChange}
                 size='small'
                 siblingRange={1}
-                totalPages={
-                  Math.ceil(tokens.length / ITEMS_PER_PAGE) +
-                  (tokens.length % ITEMS_PER_PAGE === 0 ? 1 : 0)
-                }
+                totalPages={totalPages}
               />
             </Table.HeaderCell>
           </Table.Row>

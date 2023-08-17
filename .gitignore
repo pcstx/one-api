@@ -4,4 +4,4 @@ upload
 *.exe
 *.db
 *.db-journal
-web/build/
+web/build/*

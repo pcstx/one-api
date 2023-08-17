@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"one-api/common"
 
+	paginator "github.com/yafeng-Soong/gorm-paginator"
 	"gorm.io/gorm"
 )
 
@@ -27,9 +28,25 @@ func GetAllRedemptions(startIdx int, num int) ([]*Redemption, error) {
 	return redemptions, err
 }
 
+func GetAllRedemptionsPageList(currentPage int64, pageSize int64) (page paginator.Page[Redemption], err error) {
+	query := DB.Order("id desc")
+	page = paginator.Page[Redemption]{CurrentPage: currentPage, PageSize: pageSize}
+	// 传入查询条件，执行分页查询
+	err = page.SelectPages(query)
+	return page, err
+}
+
 func SearchRedemptions(keyword string) (redemptions []*Redemption, err error) {
 	err = DB.Where("id = ? or name LIKE ?", keyword, keyword+"%").Find(&redemptions).Error
 	return redemptions, err
+}
+
+func SearchRedemptionsPageList(keyword string, currentPage int64, pageSize int64) (page paginator.Page[Redemption], err error) {
+	query := DB.Where("id = ? or name LIKE ?", keyword, keyword+"%")
+	page = paginator.Page[Redemption]{CurrentPage: currentPage, PageSize: pageSize}
+	// 传入查询条件，执行分页查询
+	err = page.SelectPages(query)
+	return page, err
 }
 
 func GetRedemptionById(id int) (*Redemption, error) {

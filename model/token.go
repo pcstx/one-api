@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"one-api/common"
 
+	paginator "github.com/yafeng-Soong/gorm-paginator"
 	"gorm.io/gorm"
 )
 
@@ -36,9 +37,28 @@ func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
 	return tokens, err
 }
 
+func GetAllUserTokensPageList(userId int, currentPage int64, pageSize int64) (page paginator.Page[Token], err error) {
+	//var tokens []*Token
+	//var err error
+	query := DB.Where("user_id = ?", userId).Order("id desc")
+
+	page = paginator.Page[Token]{CurrentPage: currentPage, PageSize: pageSize}
+	// 传入查询条件，执行分页查询
+	err = page.SelectPages(query)
+	return page, err
+}
+
 func SearchUserTokens(userId int, keyword string) (tokens []*Token, err error) {
 	err = DB.Where("user_id = ?", userId).Where("name LIKE ?", keyword+"%").Find(&tokens).Error
 	return tokens, err
+}
+
+func SearchUserTokensPageList(userId int, keyword string, currentPage int64, pageSize int64) (page paginator.Page[Token], err error) {
+	query := DB.Where("user_id = ?", userId).Where("name LIKE ?", keyword+"%")
+	page = paginator.Page[Token]{CurrentPage: currentPage, PageSize: pageSize}
+	// 传入查询条件，执行分页查询
+	err = page.SelectPages(query)
+	return page, err
 }
 
 func ValidateUserToken(key string) (token *Token, err error) {

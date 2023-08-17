@@ -12,17 +12,15 @@ import (
 
 func GetAllTokens(c *gin.Context) {
 	userId := c.GetInt("id")
-	fmt.Printf("cookie中的userId=%v\n", userId)
 	if userId == 0 {
 		userId = common.GetSession[int](c, "id")
 	}
-	fmt.Printf("session中的userId=%v\n", userId)
 
-	p, _ := strconv.Atoi(c.Query("p"))
+	p, _ := strconv.ParseInt(c.Query("p"), 10, 64)
 	if p < 0 {
 		p = 0
 	}
-	tokens, err := model.GetAllUserTokens(userId, p*common.ItemsPerPage, common.ItemsPerPage)
+	page, err := model.GetAllUserTokensPageList(userId, p+1, int64(common.ItemsPerPage))
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -31,9 +29,13 @@ func GetAllTokens(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    tokens,
+		"success":     true,
+		"message":     "",
+		"data":        page.Data,
+		"total":       page.Total,
+		"pages":       page.Pages,
+		"currentPage": page.CurrentPage,
+		"pageSize":    page.PageSize,
 	})
 	return
 }
@@ -45,7 +47,12 @@ func SearchTokens(c *gin.Context) {
 	}
 
 	keyword := c.Query("keyword")
-	tokens, err := model.SearchUserTokens(userId, keyword)
+
+	p, _ := strconv.ParseInt(c.Query("p"), 10, 64)
+	if p < 0 {
+		p = 0
+	}
+	page, err := model.SearchUserTokensPageList(userId, keyword, p+1, int64(common.ItemsPerPage))
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -54,9 +61,13 @@ func SearchTokens(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    tokens,
+		"success":     true,
+		"message":     "",
+		"data":        page.Data,
+		"total":       page.Total,
+		"pages":       page.Pages,
+		"currentPage": page.CurrentPage,
+		"pageSize":    page.PageSize,
 	})
 	return
 }

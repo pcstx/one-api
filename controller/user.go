@@ -242,11 +242,11 @@ func Register(c *gin.Context) {
 }
 
 func GetAllUsers(c *gin.Context) {
-	p, _ := strconv.Atoi(c.Query("p"))
+	p, _ := strconv.ParseInt(c.Query("p"), 10, 64)
 	if p < 0 {
 		p = 0
 	}
-	users, err := model.GetAllUsers(p*common.ItemsPerPage, common.ItemsPerPage)
+	page, err := model.GetAllUsersPageList(p+1, int64(common.ItemsPerPage))
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -255,16 +255,25 @@ func GetAllUsers(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    users,
+		"success":     true,
+		"message":     "",
+		"data":        page.Data,
+		"total":       page.Total,
+		"pages":       page.Pages,
+		"currentPage": page.CurrentPage,
+		"pageSize":    page.PageSize,
 	})
 	return
 }
 
 func SearchUsers(c *gin.Context) {
 	keyword := c.Query("keyword")
-	users, err := model.SearchUsers(keyword)
+
+	p, _ := strconv.ParseInt(c.Query("p"), 10, 64)
+	if p < 0 {
+		p = 0
+	}
+	page, err := model.SearchUsersPageList(keyword, p+1, int64(common.ItemsPerPage))
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"success": false,
@@ -273,9 +282,13 @@ func SearchUsers(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "",
-		"data":    users,
+		"success":     true,
+		"message":     "",
+		"data":        page.Data,
+		"total":       page.Total,
+		"pages":       page.Pages,
+		"currentPage": page.CurrentPage,
+		"pageSize":    page.PageSize,
 	})
 	return
 }

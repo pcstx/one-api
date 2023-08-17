@@ -3,9 +3,11 @@ package model
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 	"one-api/common"
 	"strings"
+
+	paginator "github.com/yafeng-Soong/gorm-paginator"
+	"gorm.io/gorm"
 )
 
 // User if you add sensitive fields, don't forget to clean them in setupLogin function.
@@ -41,9 +43,24 @@ func GetAllUsers(startIdx int, num int) (users []*User, err error) {
 	return users, err
 }
 
+func GetAllUsersPageList(currentPage int64, pageSize int64) (page paginator.Page[User], err error) {
+	query := DB.Order("id desc").Omit("password")
+	page = paginator.Page[User]{CurrentPage: currentPage, PageSize: pageSize}
+	// 传入查询条件，执行分页查询
+	err = page.SelectPages(query)
+	return page, err
+}
+
 func SearchUsers(keyword string) (users []*User, err error) {
 	err = DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", keyword, keyword+"%", keyword+"%", keyword+"%").Find(&users).Error
 	return users, err
+}
+
+func SearchUsersPageList(keyword string, currentPage int64, pageSize int64) (page paginator.Page[User], err error) {
+	query := DB.Omit("password").Where("id = ? or username LIKE ? or email LIKE ? or display_name LIKE ?", keyword, keyword+"%", keyword+"%", keyword+"%")
+	page = paginator.Page[User]{CurrentPage: currentPage, PageSize: pageSize}
+	err = page.SelectPages(query)
+	return page, err
 }
 
 func GetUserById(id int, selectAll bool) (*User, error) {
