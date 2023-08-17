@@ -5,3 +5,5 @@ upload
 *.db
 *.db-journal
 web/build/*
+web/build/asset-manifest.json
+web/build/index.html
