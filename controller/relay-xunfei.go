@@ -76,7 +76,7 @@ type XunfeiChatResponse struct {
 	} `json:"payload"`
 }
 
-func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string) *XunfeiChatRequest {
+func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string, domain string) *XunfeiChatRequest {
 	messages := make([]XunfeiMessage, 0, len(request.Messages))
 	for _, message := range request.Messages {
 		if message.Role == "system" {
@@ -97,7 +97,7 @@ func requestOpenAI2Xunfei(request GeneralOpenAIRequest, xunfeiAppId string) *Xun
 	}
 	xunfeiRequest := XunfeiChatRequest{}
 	xunfeiRequest.Header.AppId = xunfeiAppId
-	xunfeiRequest.Parameter.Chat.Domain = "general"
+	xunfeiRequest.Parameter.Chat.Domain = domain
 	xunfeiRequest.Parameter.Chat.Temperature = request.Temperature
 	xunfeiRequest.Parameter.Chat.TopK = request.N
 	xunfeiRequest.Parameter.Chat.MaxTokens = request.MaxTokens
@@ -211,6 +211,20 @@ func assembleAuthUrl(hosturl string, apiKey, apiSecret string) string {
 
 func xunfeiStreamHandler(c *gin.Context, textRequest GeneralOpenAIRequest, appId string, apiSecret string, apiKey string) (*OpenAIErrorWithStatusCode, *Usage) {
 	var usage Usage
+	query := c.Request.URL.Query()
+	apiVersion := query.Get("api-version")
+	if apiVersion == "" {
+		apiVersion = c.GetString("api_version")
+	}
+	if apiVersion == "" {
+		apiVersion = "v1.1"
+		common.SysLog("api_version not found, use default: " + apiVersion)
+	}
+	domain := "general"
+	if apiVersion == "v2.1" {
+		domain = "generalv2"
+	}
+	hostUrl := fmt.Sprintf("wss://spark-api.xf-yun.com/%s/chat", apiVersion)
 	d := websocket.Dialer{
 		HandshakeTimeout: 5 * time.Second,
 	}

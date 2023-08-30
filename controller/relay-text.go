@@ -282,6 +282,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 				req.Header.Set("api-key", apiKey)
 			} else {
 				req.Header.Set("Authorization", c.Request.Header.Get("Authorization"))
+				if channelType == common.ChannelTypeOpenRouter {
+					req.Header.Set("HTTP-Referer", "https://github.com/songquanpeng/one-api")
+					req.Header.Set("X-Title", "One API")
+				}
 			}
 		case APITypeClaude:
 			req.Header.Set("x-api-key", apiKey)
@@ -315,6 +319,10 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "close_request_body_failed", http.StatusInternalServerError)
 		}
 		isStream = isStream || strings.HasPrefix(resp.Header.Get("Content-Type"), "text/event-stream")
+
+		if resp.StatusCode != http.StatusOK {
+			return relayErrorHandler(resp)
+		}
 	}
 
 	var textResponse TextResponse
@@ -326,14 +334,7 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		go func() {
 			if consumeQuota {
 				quota := 0
-				completionRatio := 1.0
-				if strings.HasPrefix(textRequest.Model, "gpt-3.5") {
-					completionRatio = 1.333333
-				}
-				if strings.HasPrefix(textRequest.Model, "gpt-4") {
-					completionRatio = 2
-				}
-
+				completionRatio := common.GetCompletionRatio(textRequest.Model)
 				promptTokens = textResponse.Usage.PromptTokens
 				completionTokens = textResponse.Usage.CompletionTokens
 

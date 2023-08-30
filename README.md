@@ -51,11 +51,13 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
   <a href="https://iamazing.cn/page/reward">赞赏支持</a>
 </p>
 
-> **Note**：本项目为开源项目，使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
+> **Note**
+> 本项目为开源项目，使用者必须在遵循 OpenAI 的[使用条款](https://openai.com/policies/terms-of-use)以及**法律法规**的情况下使用，不得用于非法用途。
+> 
+> 根据[《生成式人工智能服务管理暂行办法》](http://www.cac.gov.cn/2023-07/13/c_1690898327029107.htm)的要求，请勿对中国地区公众提供一切未经备案的生成式人工智能服务。
 
-> **Note**：使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
-
-> **Warning**：从 `v0.3` 版本升级到 `v0.4` 版本需要手动迁移数据库，请手动执行[数据库迁移脚本](./bin/migration_v0.3-v0.4.sql)。
+> **Warning**
+> 使用 Docker 拉取的最新镜像可能是 `alpha` 版本，如果追求稳定性请手动指定版本。
 
 ## 功能
 1. 支持多种大模型：
@@ -66,6 +68,7 @@ _✨ 通过标准的 OpenAI API 格式访问所有的大模型，开箱即用 �
    + [x] [阿里通义千问系列模型](https://help.aliyun.com/document_detail/2400395.html)
    + [x] [讯飞星火认知大模型](https://www.xfyun.cn/doc/spark/Web.html)
    + [x] [智谱 ChatGLM 系列模型](https://bigmodel.cn)
+   + [x] [360 智脑](https://ai.360.cn)
 2. 支持配置镜像以及众多第三方代理服务：
    + [x] [OpenAI-SB](https://openai-sb.com)
    + [x] [API2D](https://api2d.com/r/197971)
