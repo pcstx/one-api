@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment, Statistic,Message,Confirm, FormGroup,Label,Image,Tab,Container } from 'semantic-ui-react';
 import { API, showError, showSuccess } from '../../helpers';
-import { renderQuota } from '../../helpers/render';
+import { renderQuota } from '../../helpers/render'; 
 
 const Recharge = () => {
   const [redemptionCode, setRedemptionCode] = useState(100);
@@ -13,8 +13,9 @@ const Recharge = () => {
   const [open,setOpen] = useState(false);
   const [logo,setLogo] = useState('')
   const [hideImg,setHideImg] = useState(true)
+  const [query, setQuery] = useState(null);
+  
   let orderNumber=''
-  let query;
   let count = 199;
 
   const openConfirm = () =>  { 
@@ -92,9 +93,12 @@ const Recharge = () => {
         setLogo(data.imgUrl)      
         setHideImg(false)
         //循环查询
-        query = setInterval(() => {
+        if(query){
+          clearInterval(query)
+        }
+        setQuery(setInterval(() => {
           queryOrder()
-        }, 3000);  
+        }, 3000))
       } else {
         showError(message);
       }
@@ -156,7 +160,7 @@ const Recharge = () => {
         setHideImg(true);
     }
   }
-
+ 
   useEffect(() => {
     let status = localStorage.getItem('status');
     if (status) {
@@ -165,8 +169,15 @@ const Recharge = () => {
         setTopUpLink(status.top_up_link);
       }
     }
-    getUserQuota().then();
-  }, []);
+    getUserQuota().then(); 
+
+    return () => { 
+      //清空定时器
+      if (query) {
+        clearInterval(query)
+      }
+    };
+  }, [query]);
 
   const panes = [
     { menuItem: '现金充值', render: () => <Tab.Pane renderActiveOnly={false}><Cash/></Tab.Pane> },

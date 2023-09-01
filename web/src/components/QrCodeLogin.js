@@ -18,7 +18,7 @@ const QrCodeLogin = () => {
 
   const stateparams = useLocation();
   const stateData = stateparams.state;
-
+  let timer;
 
   useEffect(() => {
     if (searchParams.get('expired')) {
@@ -29,6 +29,13 @@ const QrCodeLogin = () => {
       status = JSON.parse(status);
     }
     getQrCodeUrl();
+
+    return () => {
+      if (timer) {
+        clearInterval(timer);
+      }
+    };
+
   }, []); 
  
   async function getQrCodeUrl() {
@@ -40,7 +47,7 @@ const QrCodeLogin = () => {
       setQrCodeUrl(data.qrCodeUrl);
       
         //轮询确认登录
-        let timer = setInterval(async () => {
+        timer = setInterval(async () => {
             let isSuccess = await confirmLogin(data.qrCode); 
             if(isSuccess){
                 clearInterval(timer);
