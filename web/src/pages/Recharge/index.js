@@ -5,7 +5,7 @@ import { renderQuota } from '../../helpers/render';
 
 const Recharge = () => {
   const [redemptionCode, setRedemptionCode] = useState(100);
-  const [orderPrice,setOrderPrice] = useState();
+  const [orderPrice,setOrderPrice] = useState(1);
   const [topUpLink, setTopUpLink] = useState('');
   const [userQuota, setUserQuota] = useState(0);
   const [userPoint, setUserPoint] = useState(0);
@@ -273,7 +273,10 @@ const Recharge = () => {
           name='orderPrice'
           value={orderPrice}
           onChange={(e) => {
-            setOrderPrice(e.target.value);
+            const inputValue = e.target.value;
+            if (/^\d+(\.\d{0,2})?$/.test(inputValue)) {
+              setOrderPrice(inputValue);
+            }
           }}
           input='number'
           minLength='1'
@@ -314,7 +317,10 @@ const Recharge = () => {
             name='redemptionCode'
             value={redemptionCode}
             onChange={(e) => {
-              setRedemptionCode(e.target.value);
+              const inputValue = e.target.value;
+              if (/^[1-9]\d*$/.test(inputValue) || inputValue === '') {
+                setRedemptionCode(inputValue);
+              }
             }}
             input='number'
             minLength='3'
