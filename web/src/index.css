@@ -57,3 +57,15 @@ code {
     box-shadow: none!important;
     padding: 2.5rem!important;
 }
+
+.img-div {
+    margin-top: 1rem;    
+}
+
+.d-none {
+    display: none! important; 
+}
+
+.label-div{
+    margin-top: 0.6rem! important;   
+}

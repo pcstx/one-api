@@ -160,3 +160,52 @@ func DeleteRedemptionById(id int) (err error) {
 	}
 	return redemption.Delete()
 }
+
+func UpdatePaySuccess(key string, userId int) (quota int, err error) {
+	if key == "" {
+		return 0, errors.New("无效的订单号")
+	}
+	if userId == 0 {
+		return 0, errors.New("无效的 user id")
+	}
+	redemption := &Redemption{}
+
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		err := tx.Set("gorm:query_option", "FOR UPDATE").Where("`key` = ? and `user_id` = ?", key, userId).First(redemption).Error
+		if err != nil {
+			return errors.New("无效的订单号")
+		}
+		if redemption.Status != common.RedemptionCodeStatusEnabled {
+			return errors.New("该订单号已完成支付")
+		}
+		err = tx.Model(&User{}).Where("id = ?", userId).Update("quota", gorm.Expr("quota + ?", redemption.Quota)).Error
+		if err != nil {
+			return err
+		}
+		redemption.RedeemedTime = common.GetTimestamp()
+		redemption.Status = common.RedemptionCodeStatusUsed
+		err = tx.Save(redemption).Error
+		return err
+	})
+	if err != nil {
+		return 0, errors.New("充值失败，" + err.Error())
+	}
+	RecordLog(userId, LogTypeTopup, fmt.Sprintf("通过在线充值 %s", common.LogQuota(redemption.Quota)))
+	return redemption.Quota, nil
+}
+
+func UpdatePayCancel(key string, userId int) (isSuccess int, err error) {
+	if key == "" {
+		return 0, errors.New("无效的订单号")
+	}
+	if userId == 0 {
+		return 0, errors.New("无效的 user id")
+	}
+
+	result := DB.Exec("update redemptions set status=2,redeemed_time=? where status=1 and key=? and user_id=?", common.GetTimestamp(), key, userId)
+	if result.RowsAffected <= 0 {
+		return 0, errors.New("取消订单失败")
+	}
+
+	return 1, nil
+}

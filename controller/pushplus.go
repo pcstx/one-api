@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"crypto/md5"
 	"errors"
 	"fmt"
+	"io"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
@@ -41,6 +43,42 @@ type TokenOrder struct {
 	UserId     int     `json:"userId"`
 	OpenId     string  `json:"openId"`
 	Token      string  `json:"token"`
+}
+
+type PerkAIOrder struct {
+	OrderPrice float64 `json:"orderPrice"`
+	PayType    int     `json:"payType"`
+	Token      string  `json:"token"`
+}
+
+type PayData struct {
+	OrderNumber string `json:"orderNumber"`
+	ImgUrl      string `json:"imgUrl"`
+	Form        string `json:"form"`
+	PayDataDto  string `json:"payDataDto"`
+	PayUrl      string `json:"payUrl"`
+}
+
+type QueryOrder struct {
+	OrderNumber string `json:"orderNumber"`
+	Token       string `json:"token"`
+}
+
+type Order struct {
+	Id          int64  `json:"id"`
+	OrderNumber string `json:"orderNumber"`
+	OrderPrice  int64  `json:"orderPrice"`
+	OrderTime   string `json:"orderTime"`
+	PayTime     string `json:"payTime"`
+	PayStatus   int    `json:"payStatus"`
+	OrderStatus int    `json:"orderStatus"`
+}
+
+type PayCallBack struct {
+	UserId      int    `json:"userId"`
+	OrderNumber string `json:"orderNumber"`
+	OrderStatus int    `json:"orderStatus"`
+	key         string `json:key`
 }
 
 func getQrCodeUrl() (*Data, error) {
@@ -372,5 +410,176 @@ func (con PushplusController) TokenOrder(c *gin.Context) {
 	}
 
 	common.Success(c, result)
+	return
+}
+
+func perkAIOrder(perkAIOrder *PerkAIOrder) (*PayData, error) {
+	url := fmt.Sprintf("%s/customer/pay/perkAIOrder", common.PushPlusApiUrl)
+	perkAIOrder.PayType = 0
+	result, err := common.HttpPost[PayData](url, perkAIOrder, perkAIOrder.Token)
+	if err != nil {
+		fmt.Println(err.Error())
+		return &PayData{}, err
+	}
+
+	return &result.Data, err
+}
+
+func (con PushplusController) PerkAIOrder(c *gin.Context) {
+	var perkAIOrderDto PerkAIOrder
+	if err := c.ShouldBind(&perkAIOrderDto); err != nil {
+		common.Error(c, "请求对象有误")
+		return
+	}
+
+	//服务端校验
+	if perkAIOrderDto.OrderPrice < 1 {
+		common.Error(c, "充值金额最少1元")
+		return
+	}
+
+	//获取请求token
+	token := common.GetSession[string](c, "pushToken")
+	userId := common.GetSession[int](c, "id")
+	perkAIOrderDto.Token = token
+
+	//1元等于5万token
+	quota := perkAIOrderDto.OrderPrice * 50000
+
+	result, err := perkAIOrder(&perkAIOrderDto)
+	if err != nil {
+		common.Error(c, err.Error())
+		return
+	}
+
+	if len(result.OrderNumber) > 0 {
+		//支付订单入库
+		redemption := model.Redemption{
+			UserId:      userId,
+			Name:        "pushplus现金充值",
+			Key:         result.OrderNumber,
+			CreatedTime: common.GetTimestamp(),
+			Quota:       int(quota),
+		}
+		err = redemption.Insert()
+		if err != nil {
+			common.Error(c, err.Error())
+			return
+		}
+	} else {
+		common.Error(c, "生成订单失败，请稍后重试")
+		return
+	}
+
+	common.Success(c, result)
+	return
+}
+
+// 主动查询
+func queryOrder(queryOrder *QueryOrder) (*Order, error) {
+	url := fmt.Sprintf("%s/customer/pay/queryOrder?orderNumber=%s", common.PushPlusApiUrl, queryOrder.OrderNumber)
+	result, err := common.HttpGet[Order](url, queryOrder.Token)
+	if err != nil {
+		fmt.Println(err.Error())
+		return &Order{}, err
+	}
+
+	return &result.Data, err
+}
+
+func (con PushplusController) QueryOrder(c *gin.Context) {
+	orderNumber := c.Query("orderNumber")
+
+	//获取请求token
+	token := common.GetSession[string](c, "pushToken")
+	userId := common.GetSession[int](c, "id")
+
+	var queryOrderDto QueryOrder
+	queryOrderDto.Token = token
+	queryOrderDto.OrderNumber = orderNumber
+
+	result, err := queryOrder(&queryOrderDto)
+	if err != nil {
+		common.Error(c, err.Error())
+		return
+	}
+
+	//判断状态入库处理
+	if result.OrderStatus != 0 {
+		if result.OrderStatus == 1 {
+			//支付成功
+			_, err = model.UpdatePaySuccess(result.OrderNumber, userId)
+			if err != nil {
+				common.Error(c, err.Error())
+				return
+			}
+		} else if result.OrderStatus == -1 {
+			//支付取消
+			_, err = model.UpdatePayCancel(result.OrderNumber, userId)
+			if err != nil {
+				common.Error(c, err.Error())
+				return
+			}
+		}
+
+	}
+
+	//result.OrderStatus = 1
+
+	common.Success(c, result)
+	return
+}
+
+func valid(payCallBack PayCallBack) string {
+	valid := "salt=2ddfdca6f8c5b22d36ab21e6f8644650&UserId:" + strconv.Itoa(payCallBack.UserId) + "&OrderNumber:" + payCallBack.OrderNumber + "&OrderStatus:" + strconv.Itoa(payCallBack.OrderStatus)
+
+	hasher := md5.New()
+
+	// 将字符串写入哈希对象
+	io.WriteString(hasher, valid)
+
+	// 计算MD5哈希值
+	hashedBytes := hasher.Sum(nil)
+
+	// 将哈希值转换为十六进制字符串
+	hashedString := fmt.Sprintf("%x", hashedBytes)
+
+	return hashedString
+}
+
+// 回调方法
+func (con PushplusController) CallBackPay(c *gin.Context) {
+	var payCallBack PayCallBack
+	if err := c.ShouldBind(&payCallBack); err != nil {
+		common.Error(c, "请求对象有误")
+		return
+	}
+
+	//校验是否伪造
+	key := valid(payCallBack)
+	if key != payCallBack.key {
+		common.Error(c, "未通过请求校验")
+		return
+	}
+
+	// 判断状态入库处理
+	if payCallBack.OrderStatus != 0 {
+		if payCallBack.OrderStatus == 1 {
+			//支付成功
+			_, err := model.UpdatePaySuccess(payCallBack.OrderNumber, payCallBack.UserId)
+			if err != nil {
+				common.Error(c, err.Error())
+				return
+			}
+		} else if payCallBack.OrderStatus == -1 {
+			//支付取消
+			_, err := model.UpdatePayCancel(payCallBack.OrderNumber, payCallBack.UserId)
+			if err != nil {
+				common.Error(c, err.Error())
+				return
+			}
+		}
+	}
+	common.Success(c, 1)
 	return
 }

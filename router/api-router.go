@@ -29,6 +29,9 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.GET("/setSession", controller.TestController{}.SetSession)
 		apiRouter.GET("/clearSession", controller.TestController{}.ClearSession)
 
+		//支付回调通知
+		apiRouter.POST("/callback", controller.PushplusController{}.CallBackPay)
+
 		userRoute := apiRouter.Group("/user")
 		{
 			userRoute.POST("/register", middleware.CriticalRateLimit(), middleware.TurnstileCheck(), controller.Register)
@@ -53,6 +56,10 @@ func SetApiRouter(router *gin.Engine) {
 				//积分兑换
 				selfRoute.POST("/recharge", controller.PushplusController{}.Recharge)
 				selfRoute.GET("/point", controller.GetPoint)
+				//现金充值
+				selfRoute.POST("/cashRecharge", controller.PushplusController{}.PerkAIOrder)
+				//查询订单
+				selfRoute.GET("/queryOrder", controller.PushplusController{}.QueryOrder)
 			}
 
 			adminRoute := userRoute.Group("/")

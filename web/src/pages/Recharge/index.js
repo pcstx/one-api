@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form, Header, Segment, Statistic,Message,Confirm, FormGroup,Label } from 'semantic-ui-react';
+import { Button, Form, Header, Segment, Statistic,Message,Confirm, FormGroup,Label,Image,Tab,Container } from 'semantic-ui-react';
 import { API, showError, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render';
 
 const Recharge = () => {
   const [redemptionCode, setRedemptionCode] = useState(100);
+  const [orderPrice,setOrderPrice] = useState(1);
   const [topUpLink, setTopUpLink] = useState('');
   const [userQuota, setUserQuota] = useState(0);
   const [userPoint, setUserPoint] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [open,setOpen] = useState(false);
+  const [logo,setLogo] = useState('')
+  const [hideImg,setHideImg] = useState(true)
+  let orderNumber=''
+  let query;
+  let count = 199;
 
   const openConfirm = () =>  { 
     if(redemptionCode<100){
@@ -60,6 +66,41 @@ const Recharge = () => {
       showError('请求失败');
     } finally {
       setIsSubmitting(false); 
+    }
+  };
+
+  const cashRecharge = async () => {
+    if(orderPrice<=0){
+      showError('充值金额最低1元')
+        return;
+    }
+    
+    if(orderPrice>10000){
+      showError('充值金额最高1万元')
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await API.post('/api/user/cashRecharge', {
+        orderPrice: orderPrice*1.0
+      });
+      const { success, message, data } = res.data;
+      if (success) {
+        orderNumber = data.orderNumber
+        setLogo(data.imgUrl)      
+        setHideImg(false)
+        //循环查询
+        query = setInterval(() => {
+          queryOrder()
+        }, 3000);  
+      } else {
+        showError(message);
+      }
+    } catch (err) {
+      showError('请求失败');
+    } finally {
+      setIsSubmitting(false); 
       setOpen(false);
     }
   };
@@ -83,6 +124,38 @@ const Recharge = () => {
     }
   }
 
+  const queryOrder = async () => {
+    let res  = await API.get(`/api/user/queryOrder?orderNumber=${orderNumber}`);
+    const {success, message, data} = res.data;
+    if (success) { 
+      if(data && data.orderStatus===1){
+        //停止查询
+        //增加金额
+        clearInterval(query)
+        showSuccess('充值成功！');
+        setHideImg(true)
+        setUserQuota((quota) => {
+          return quota + data.orderPrice*500;
+        });
+      } else if(data && data.orderStatus === -1){
+        //支付取消了
+        clearInterval(query)
+        showSuccess('支付已取消！');
+        setHideImg(true)
+      }
+    } else {
+      showError(message);
+    }
+    //循环超过次数
+    if (count > 0) {
+        count--;
+    } else {    
+        clearInterval(query);
+        showSuccess('支付超时！');
+        setHideImg(true);
+    }
+  }
+
   useEffect(() => {
     let status = localStorage.getItem('status');
     if (status) {
@@ -93,6 +166,92 @@ const Recharge = () => {
     }
     getUserQuota().then();
   }, []);
+
+  const panes = [
+    { menuItem: '现金充值', render: () => <Tab.Pane renderActiveOnly={false}><Cash/></Tab.Pane> },
+    { menuItem: '积分兑换', render: () => <Tab.Pane renderActiveOnly={false}><Redemption/></Tab.Pane> },
+  ]
+
+  const Cash = () => {
+    return (
+        <Form>
+        <FormGroup inline>
+            <label>充值金额</label>
+            <Form.Input 
+              placeholder='元'
+              name='orderPrice'
+              value={orderPrice}
+              onChange={(e) => {
+                setOrderPrice(e.target.value);
+              }}
+              input='number'
+              minLength='1'
+              maxLength='5'
+            />
+            <Button color='orange' onClick={cashRecharge} disabled={isSubmitting}>
+                {isSubmitting ? '充值中...' : '现金充值'}
+            </Button>
+           
+        </FormGroup>
+        <Label>
+            充值Token数量：{(orderPrice*500*100).toLocaleString()}<br/>
+        </Label>
+
+        <Container className={`img-div  ${hideImg ? 'd-none':''}`}>
+          <Image src={logo} size='small'/>
+          <Label color='grey' className='label-div'>支持微信、支付宝扫码</Label>
+        </Container>
+       
+    
+    
+            <Message info>
+                <Message.List>
+                    <Message.Item>现金1元=5万token</Message.Item>
+                    <Message.Item>最少充值1元，最多1万元</Message.Item>
+                    <Message.Item>50万token约为1美元额度</Message.Item>
+                    <Message.Item>充值成功后无法退款</Message.Item>
+                </Message.List>
+            </Message>
+        </Form>
+    );
+  }; 
+   
+  const Redemption = ()=> {
+    return ( 
+      <Form>
+        <FormGroup inline>
+            <label>积分数量</label>
+            <Form.Input 
+              placeholder='积分'
+              name='redemptionCode'
+              value={redemptionCode}
+              onChange={(e) => {
+                setRedemptionCode(e.target.value);
+              }}
+              input='number'
+              minLength='3'
+              maxLength='7'
+            />
+            <Button color='orange' onClick={openConfirm} disabled={isSubmitting}>
+                {isSubmitting ? '兑换中...' : '兑换Token'}
+            </Button>
+          
+        </FormGroup>
+        <Label>
+              兑换Token数量：{(redemptionCode*500).toLocaleString()}<br/>
+            </Label>
+
+            <Message info>
+                <Message.List>
+                    <Message.Item>积分兑换比例为1:500，100积分=5万token</Message.Item>
+                    <Message.Item>最少100积分起兑，最多1百万积分</Message.Item>
+                    <Message.Item>50万token约为1美元额度</Message.Item>
+                    <Message.Item>兑换成token后将无法退回</Message.Item>
+                </Message.List>
+            </Message>
+      </Form>        
+    );
+  };
 
   return (
     <Segment>
@@ -115,41 +274,9 @@ const Recharge = () => {
               <Statistic.Label>我的额度</Statistic.Label>
             </Statistic>
       </Statistic.Group>
-
+ 
       <Segment basic>
-        <Form>
-          <FormGroup inline>
-              <label>积分数量</label>
-              <Form.Input
-                focus
-                placeholder='积分'
-                name='redemptionCode'
-                value={redemptionCode}
-                onChange={(e) => {
-                  setRedemptionCode(e.target.value);
-                }}
-                input='number'
-                minLength='3'
-                maxLength='7'
-              />
-              <Button color='orange' onClick={openConfirm} disabled={isSubmitting}>
-                  {isSubmitting ? '兑换中...' : '兑换Token'}
-              </Button>
-             
-          </FormGroup>
-          <Label>
-                 兑换Token数量：{(redemptionCode*500).toLocaleString()}<br/>
-              </Label>
-
-              <Message info>
-                  <Message.List>
-                      <Message.Item>积分兑换比例为1:500，100积分=5万token</Message.Item>
-                      <Message.Item>最少100积分起兑，最多1百万积分</Message.Item>
-                      <Message.Item>50万token约为1美元额度</Message.Item>
-                      <Message.Item>兑换成token后将无法退回</Message.Item>
-                  </Message.List>
-              </Message>
-        </Form>
+          <Tab menu={{ secondary: true, pointing: true }} panes={panes} />
       </Segment>
 
           <Confirm
