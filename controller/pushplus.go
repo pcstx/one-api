@@ -1,10 +1,8 @@
 package controller
 
 import (
-	"crypto/md5"
 	"errors"
 	"fmt"
-	"io"
 	"one-api/common"
 	"one-api/model"
 	"strconv"
@@ -72,13 +70,6 @@ type Order struct {
 	PayTime     string `json:"payTime"`
 	PayStatus   int    `json:"payStatus"`
 	OrderStatus int    `json:"orderStatus"`
-}
-
-type PayCallBack struct {
-	UserId      int    `json:"userId"`
-	OrderNumber string `json:"orderNumber"`
-	OrderStatus int    `json:"orderStatus"`
-	key         string `json:key`
 }
 
 func getQrCodeUrl() (*Data, error) {
@@ -530,34 +521,17 @@ func (con PushplusController) QueryOrder(c *gin.Context) {
 	return
 }
 
-func valid(payCallBack PayCallBack) string {
-	valid := "salt=2ddfdca6f8c5b22d36ab21e6f8644650&UserId:" + strconv.Itoa(payCallBack.UserId) + "&OrderNumber:" + payCallBack.OrderNumber + "&OrderStatus:" + strconv.Itoa(payCallBack.OrderStatus)
-
-	hasher := md5.New()
-
-	// 将字符串写入哈希对象
-	io.WriteString(hasher, valid)
-
-	// 计算MD5哈希值
-	hashedBytes := hasher.Sum(nil)
-
-	// 将哈希值转换为十六进制字符串
-	hashedString := fmt.Sprintf("%x", hashedBytes)
-
-	return hashedString
-}
-
 // 回调方法
 func (con PushplusController) CallBackPay(c *gin.Context) {
-	var payCallBack PayCallBack
+	var payCallBack common.PayCallBack
 	if err := c.ShouldBind(&payCallBack); err != nil {
 		common.Error(c, "请求对象有误")
 		return
 	}
 
 	//校验是否伪造
-	key := valid(payCallBack)
-	if key != payCallBack.key {
+	key := common.Valid(payCallBack)
+	if key != payCallBack.Key {
 		common.Error(c, "未通过请求校验")
 		return
 	}
