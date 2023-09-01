@@ -44,9 +44,10 @@ type TokenOrder struct {
 }
 
 type PerkAIOrder struct {
-	OrderPrice float64 `json:"orderPrice"`
-	PayType    int     `json:"payType"`
-	Token      string  `json:"token"`
+	OrderPrice   float64 `json:"orderPrice"`
+	PayType      int     `json:"payType"`
+	PerkAIUserId int     `json:"perkAIUserId"`
+	Token        string  `json:"token"`
 }
 
 type PayData struct {
@@ -404,6 +405,7 @@ func (con PushplusController) TokenOrder(c *gin.Context) {
 	return
 }
 
+// 调用pushplus下单
 func perkAIOrder(perkAIOrder *PerkAIOrder) (*PayData, error) {
 	url := fmt.Sprintf("%s/customer/pay/perkAIOrder", common.PushPlusApiUrl)
 	perkAIOrder.PayType = 0
@@ -433,6 +435,7 @@ func (con PushplusController) PerkAIOrder(c *gin.Context) {
 	token := common.GetSession[string](c, "pushToken")
 	userId := common.GetSession[int](c, "id")
 	perkAIOrderDto.Token = token
+	perkAIOrderDto.PerkAIUserId = userId
 
 	//1元等于5万token
 	quota := perkAIOrderDto.OrderPrice * 50000
@@ -531,7 +534,9 @@ func (con PushplusController) CallBackPay(c *gin.Context) {
 
 	//校验是否伪造
 	key := common.Valid(payCallBack)
+
 	if key != payCallBack.Key {
+		fmt.Println("未通过校验")
 		common.Error(c, "未通过请求校验")
 		return
 	}

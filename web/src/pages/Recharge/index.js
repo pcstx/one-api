@@ -65,6 +65,7 @@ const Recharge = () => {
     } catch (err) {
       showError('请求失败');
     } finally {
+      setOpen(false)
       setIsSubmitting(false); 
     }
   };
