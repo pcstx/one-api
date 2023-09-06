@@ -40,6 +40,29 @@ func GetAllTokens(c *gin.Context) {
 	return
 }
 
+// 获取用户下所有的令牌
+func GetUserTokens(c *gin.Context) {
+	userId := c.GetInt("id")
+	if userId == 0 {
+		userId = common.GetSession[int](c, "id")
+	}
+
+	page, err := model.GetUserTokens(userId)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "",
+		"data":    page,
+	})
+	return
+}
+
 func SearchTokens(c *gin.Context) {
 	userId := c.GetInt("id")
 	if userId == 0 {
