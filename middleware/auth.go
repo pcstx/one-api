@@ -21,36 +21,36 @@ func authHelper(c *gin.Context, minRole int) {
 
 	//先从cookie中读取pushToken，不存在的话从hearder中读取,最后从session中读取
 	pushToken, _ := c.Cookie("pushToken")
-	if len(pushToken) <= 0 {
-		pushToken = c.GetHeader("pushToken")
+	// if len(pushToken) <= 0 {
+	// 	pushToken = c.GetHeader("pushToken")
 
-		if len(pushToken) <= 0 {
-			pushToken = common.GetSession[string](c, "pushToken")
-		}
-	}
+	// 	if len(pushToken) <= 0 {
+	// 		pushToken = common.GetSession[string](c, "pushToken")
+	// 	}
+	// }
 
 	if len(pushToken) > 0 {
 		//pushToken存在，但是session不存在用户对象，说明是在第三方中登录，要实现单点
-		if id <= 0 {
-			//根据pushToken获取用户信息，再回写到session中
-			//等于登录逻辑
-			userInfo, _ := controller.GetMyInfo(pushToken)
-			if userInfo != nil && userInfo.Id > 0 {
-				common.SetSession[string](c, "pushToken", pushToken)
-				controller.AuthLogin(c, userInfo)
-			} else {
-				//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
-				common.RemovePushToken(c)
-				common.RemoveCookie(c, "session")
-				common.ClearSession(c)
-				c.JSON(http.StatusUnauthorized, gin.H{
-					"success": false,
-					"message": "未登录或登录已过期，请重新登录！",
-				})
-				c.Abort()
-				return
-			}
+		//if id <= 0 {
+		//根据pushToken获取用户信息，再回写到session中
+		//等于登录逻辑
+		userInfo, _ := controller.GetMyInfo(pushToken)
+		if userInfo != nil && userInfo.Id > 0 {
+			common.SetSession[string](c, "pushToken", pushToken)
+			controller.AuthLogin(c, userInfo)
+		} else {
+			//c.SetCookie("pushToken", "", -1, "/", common.PushPlusDomain, false, false)
+			common.RemovePushToken(c)
+			common.RemoveCookie(c, "session")
+			common.ClearSession(c)
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"success": false,
+				"message": "未登录或登录已过期，请重新登录！",
+			})
+			c.Abort()
+			return
 		}
+		//}
 	} else {
 		//如果pushToken不存在，说明没有登录或者登录超时
 		c.JSON(http.StatusUnauthorized, gin.H{

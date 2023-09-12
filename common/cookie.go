@@ -37,3 +37,15 @@ func RemovePushToken(c *gin.Context) {
 	}
 	c.SetCookie("pushToken", "", -1, "/", domain, false, false)
 }
+
+func GetPushToken(c *gin.Context) string {
+	pushToken, _ := c.Cookie("pushToken")
+	if len(pushToken) <= 0 {
+		pushToken = c.GetHeader("pushToken")
+
+		if len(pushToken) <= 0 {
+			pushToken = GetSession[string](c, "pushToken")
+		}
+	}
+	return pushToken
+}

@@ -267,7 +267,8 @@ func (con PushplusController) WechatLogout(c *gin.Context) {
 }
 
 func loginOut(c *gin.Context) {
-	token := common.GetSession[string](c, "pushToken")
+	token, _ := c.Cookie("pushToken")
+	//token := common.GetSession[string](c, "pushToken")
 
 	fmt.Printf("退出时候获取token=%v\n", token)
 	url := fmt.Sprintf("%s/customer/login/loginOut", common.PushPlusApiUrl)
@@ -382,7 +383,8 @@ func (con PushplusController) TokenOrder(c *gin.Context) {
 	var tokenOrder TokenOrder
 
 	//获取请求token
-	token := common.GetSession[string](c, "pushToken")
+	token, _ := c.Cookie("pushToken")
+	//token := common.GetSession[string](c, "pushToken")
 	userId := common.GetSession[int](c, "id")
 
 	user, err := model.GetUserById(userId, false)
@@ -432,7 +434,9 @@ func (con PushplusController) PerkAIOrder(c *gin.Context) {
 	}
 
 	//获取请求token
-	token := common.GetSession[string](c, "pushToken")
+	token, _ := c.Cookie("pushToken")
+	fmt.Printf("token:%s", token)
+	//token := common.GetSession[string](c, "pushToken")
 	userId := common.GetSession[int](c, "id")
 	perkAIOrderDto.Token = token
 	perkAIOrderDto.PerkAIUserId = userId
@@ -485,7 +489,8 @@ func (con PushplusController) QueryOrder(c *gin.Context) {
 	orderNumber := c.Query("orderNumber")
 
 	//获取请求token
-	token := common.GetSession[string](c, "pushToken")
+	token, _ := c.Cookie("pushToken")
+	//token := common.GetSession[string](c, "pushToken")
 	userId := common.GetSession[int](c, "id")
 
 	var queryOrderDto QueryOrder
