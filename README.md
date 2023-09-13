@@ -211,6 +211,13 @@ docker run --name chatgpt-web -d -p 3002:3002 -e OPENAI_API_BASE_URL=https://ope
 
 注意修改端口号、`OPENAI_API_BASE_URL` 和 `OPENAI_API_KEY`。
 
+#### QChatGPT - QQ机器人
+项目主页：https://github.com/RockChinQ/QChatGPT
+
+根据文档完成部署后，在`config.py`设置配置项`openai_config`的`reverse_proxy`为 One API 后端地址，设置`api_key`为 One API 生成的key，并在配置项`completion_api_params`的`model`参数设置为 One API 支持的模型名称。
+
+可安装 [Switcher 插件](https://github.com/RockChinQ/Switcher)在运行时切换所使用的模型。
+
 ### 部署到第三方平台
 <details>
 <summary><strong>部署到 Sealos </strong></summary>
@@ -365,15 +372,3 @@ https://openai.justsong.cn
 同样适用于基于本项目的二开项目。
 
 依据 MIT 协议，使用者需自行承担使用本项目的风险与责任，本开源项目开发者与此无关。
-
-
-## 
-前端判断是否登录通过PrivateRoute方法中，判断localStore中是否有user。没有的直接跳转登录页面
-
-
-docker build --platform linux/amd64 --pull --rm -f "Dockerfile" -t registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:60 . 
-docker push registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:60
-
-docker run --name=perkai-api -d -e "SQL_DSN=root:uHX1OSY26430@tcp(mysql:3306)/one-api" -e REDIS_CONN_STRING=redis://default:DaoKe0712@redis:6379 -e SYNC_FREQUENCY=10 -e TZ=Asia/Shanghai -v /data/perkai-api/logs:/app/logs -v /data/perkai-api/data:/data -p 3002:3000 --restart=always  registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:60
-
-docker pull registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:60
