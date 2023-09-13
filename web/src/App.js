@@ -9,7 +9,7 @@ import NotFound from './pages/NotFound';
 import Setting from './pages/Setting';
 import EditUser from './pages/User/EditUser';
 import AddUser from './pages/User/AddUser';
-import { API, getLogo, getSystemName, showError, showNotice } from './helpers';
+import { API, getLogo, getSystemName, showError, showNotice, getCookie } from './helpers';
 import PasswordResetForm from './components/PasswordResetForm';
 import GitHubOAuth from './components/GitHubOAuth';
 import PasswordResetConfirm from './components/PasswordResetConfirm';
@@ -39,6 +39,21 @@ function App() {
       let data = JSON.parse(user);
       userDispatch({ type: 'login', payload: data });
     }
+    
+        //通过cookie判断是否已经登录，如果登录通过异步接口获取用户信息
+    //在此之前，先判断用户reducer里的用户信息是否存，不然会重复请求
+    // console.log('asasasas',userState)
+    // if(!userState.user){
+    //   const token = getCookie('pushToken')
+    //   if(token && token.length){
+    //     //这里应该有一个接口，是通过token换取 用户信息的
+    //     API.get('/api/user/self').then((data)=>{ 
+    //       userDispatch({ type: 'login', payload:data.data });
+    //       localStorage.setItem('user', JSON.stringify(data.data));
+    //     })
+        
+    //   }
+    //   }
   };
   const loadStatus = async () => {
     const res = await API.get('/api/status');
