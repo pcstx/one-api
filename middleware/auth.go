@@ -20,7 +20,7 @@ func authHelper(c *gin.Context, minRole int) {
 	id := common.GetSession[int](c, "id")
 
 	//先从cookie中读取pushToken，不存在的话从hearder中读取,最后从session中读取
-	pushToken, _ := c.Cookie("pushToken")
+	pushToken := common.GetPushToken(c)
 	// if len(pushToken) <= 0 {
 	// 	pushToken = c.GetHeader("pushToken")
 

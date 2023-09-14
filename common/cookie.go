@@ -43,9 +43,9 @@ func GetPushToken(c *gin.Context) string {
 	if len(pushToken) <= 0 {
 		pushToken = c.GetHeader("pushToken")
 
-		if len(pushToken) <= 0 {
-			pushToken = GetSession[string](c, "pushToken")
-		}
+		// if len(pushToken) <= 0 {
+		// 	pushToken = GetSession[string](c, "pushToken")
+		// }
 	}
 	return pushToken
 }

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Form, Header, Segment, Statistic,Message,Confirm, FormGroup,Label,Image,Tab,Container } from 'semantic-ui-react';
-import { API, showError, showSuccess } from '../../helpers';
+import { API, showError, showWarning, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render'; 
+import { getCookie, isH5,isMiniProgram } from '../../helpers/utils'
+import Script from 'react-load-script';
 
 const Recharge = () => {
   const [redemptionCode, setRedemptionCode] = useState(100);
@@ -14,7 +16,7 @@ const Recharge = () => {
   const [logo,setLogo] = useState('')
   const [hideImg,setHideImg] = useState(true)
   const [query, setQuery] = useState(null);
-  
+
   let orderNumber=''
   let count = 199;
 
@@ -83,26 +85,37 @@ const Recharge = () => {
     }
 
     setIsSubmitting(true);
+
     try {
-      const res = await API.post('/api/user/cashRecharge', {
-        orderPrice: orderPrice*1.0
-      });
-      const { success, message, data } = res.data;
-      if (success) {
-        orderNumber = data.orderNumber
-        setLogo(data.imgUrl)      
-        setHideImg(false)
-        //循环查询
-        if(query){
-          clearInterval(query)
+      const _userAgent = window.navigator.userAgent
+      if(isMiniProgram(_userAgent)){
+        let user = localStorage.getItem('user');
+        if (user) {
+          let data = JSON.parse(user);
+          window.wx.miniProgram.navigateTo({url: '/pages/redirect/redirect?orderPrice='+ orderPrice*1.0 +'&perkAIUserId='+ data.id})
         }
-        setQuery(setInterval(() => {
-          queryOrder()
-        }, 3000))
-      } else {
-        showError(message);
+      } else{
+        const res = await API.post('/api/user/cashRecharge', {
+          orderPrice: orderPrice*1.0
+        });
+        const { success, message, data } = res.data;
+        if (success) {
+          orderNumber = data.orderNumber
+          setLogo(data.imgUrl)      
+          setHideImg(false)
+          //循环查询
+          if(query){
+            clearInterval(query)
+          }
+          setQuery(setInterval(() => {
+            queryOrder()
+          }, 3000))
+        } else {
+          showError(message);
+        }
       }
     } catch (err) {
+      showError(err)
       showError('请求失败');
     } finally {
       setIsSubmitting(false); 
@@ -149,6 +162,7 @@ const Recharge = () => {
         setHideImg(true)
       }
     } else {
+      clearInterval(query)
       showError(message);
     }
     //循环超过次数
@@ -156,12 +170,34 @@ const Recharge = () => {
         count--;
     } else {    
         clearInterval(query);
-        showSuccess('支付超时！');
+        showError('支付超时！')
         setHideImg(true);
+    }
+  }
+
+  const initWeChatSDK = async () => {
+    let res = await API.get(`https://www.pushplus.plus/api/customer/wxApi/jsApi?url=pay.html`,{
+      headers: { "pushToken": getCookie('pushToken')}
+    })
+    const {code, msg, data} = res.data;
+    if (code===200) { 
+      if (window.wx && window.wx.config) {
+          const { appId, nonceStr, signature, timestamp } = data
+          window.wx.config({
+              appId,
+              nonceStr,
+              signature,
+              timestamp,
+              jsApiList: ['chooseWXPay']
+          })
+      }
+    } else{
+      showWarning('微信SDK初始出错，稍后刷新页面重试~')
     }
   }
  
   useEffect(() => {
+    initWeChatSDK()
     let status = localStorage.getItem('status');
     if (status) {
       status = JSON.parse(status);
@@ -181,6 +217,7 @@ const Recharge = () => {
 
   const Cash = () => {
     return (
+      <>
         <Form>
         <FormGroup inline>
             <label>充值金额</label>
@@ -221,6 +258,7 @@ const Recharge = () => {
                 </Message.List>
             </Message>
         </Form>
+        </>
     );
   }; 
    
@@ -264,7 +302,11 @@ const Recharge = () => {
 
   const panes = [
     { menuItem: '现金充值', render: () => 
-    <Tab.Pane key='tab1'> <Form>
+    <Tab.Pane key='tab1'> 
+      <Script
+       url="//res.wx.qq.com/open/js/jweixin-1.6.0.js"
+      />
+    <Form>
     <FormGroup inline>
         <label>充值金额</label>
         <Form.Input 

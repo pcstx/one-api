@@ -267,7 +267,7 @@ func (con PushplusController) WechatLogout(c *gin.Context) {
 }
 
 func loginOut(c *gin.Context) {
-	token, _ := c.Cookie("pushToken")
+	token := common.GetPushToken(c)
 	//token := common.GetSession[string](c, "pushToken")
 
 	fmt.Printf("退出时候获取token=%v\n", token)
@@ -383,7 +383,8 @@ func (con PushplusController) TokenOrder(c *gin.Context) {
 	var tokenOrder TokenOrder
 
 	//获取请求token
-	token, _ := c.Cookie("pushToken")
+
+	token := common.GetPushToken(c)
 	//token := common.GetSession[string](c, "pushToken")
 	userId := common.GetSession[int](c, "id")
 
@@ -434,7 +435,7 @@ func (con PushplusController) PerkAIOrder(c *gin.Context) {
 	}
 
 	//获取请求token
-	token, _ := c.Cookie("pushToken")
+	token := common.GetPushToken(c)
 	fmt.Printf("token:%s", token)
 	//token := common.GetSession[string](c, "pushToken")
 	userId := common.GetSession[int](c, "id")
@@ -489,7 +490,7 @@ func (con PushplusController) QueryOrder(c *gin.Context) {
 	orderNumber := c.Query("orderNumber")
 
 	//获取请求token
-	token, _ := c.Cookie("pushToken")
+	token := common.GetPushToken(c)
 	//token := common.GetSession[string](c, "pushToken")
 	userId := common.GetSession[int](c, "id")
 
@@ -508,17 +509,17 @@ func (con PushplusController) QueryOrder(c *gin.Context) {
 		if result.OrderStatus == 1 {
 			//支付成功
 			_, err = model.UpdatePaySuccess(result.OrderNumber, userId)
-			if err != nil {
-				common.Error(c, err.Error())
-				return
-			}
+			// if err != nil {
+			// 	common.Error(c, err.Error())
+			// 	return
+			// }
 		} else if result.OrderStatus == -1 {
 			//支付取消
 			_, err = model.UpdatePayCancel(result.OrderNumber, userId)
-			if err != nil {
-				common.Error(c, err.Error())
-				return
-			}
+			// if err != nil {
+			// 	common.Error(c, err.Error())
+			// 	return
+			// }
 		}
 
 	}

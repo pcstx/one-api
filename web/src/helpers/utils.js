@@ -221,3 +221,27 @@ export const getCookie = (name) => {
     }
     return '';
 }
+
+//判断是否是微信页面
+export const isWechat = userAgent => {
+  userAgent = userAgent || ''
+  return /MicroMessenger/i.test(userAgent)
+}
+
+//判断是否是小程序内
+export const isMiniProgram = userAgent => {
+  userAgent = userAgent || ''
+  return /miniProgram/i.test(userAgent)
+}
+
+//判断是否是H5页面
+export const isH5 = userAgent => {
+  userAgent = userAgent || ''
+  return /Android|webOS|iPhone|iPod|BlackBerry/i.test(userAgent)
+}
+
+//判断是否是支付宝页面
+export const isAliPay = userAgent => {
+  userAgent = userAgent || ''
+  return /AlipayClient/i.test(userAgent)
+}
