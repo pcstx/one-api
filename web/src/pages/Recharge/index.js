@@ -59,9 +59,10 @@ const Recharge = () => {
       const { success, message, data } = res.data;
       if (success) {
         showSuccess('积分兑换成功！');
-        setUserQuota((quota) => {
-          return quota + data;
-        });
+        getUserQuota()
+        // setUserQuota((quota) => {
+        //   return quota + data;
+        // });
         setRedemptionCode(100);
       } else {
         showError(message);
