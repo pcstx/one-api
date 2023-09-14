@@ -51,11 +51,11 @@ type PerkAIOrder struct {
 }
 
 type PayData struct {
-	OrderNumber string `json:"orderNumber"`
-	ImgUrl      string `json:"imgUrl"`
-	Form        string `json:"form"`
-	PayDataDto  string `json:"payDataDto"`
-	PayUrl      string `json:"payUrl"`
+	OrderNumber string      `json:"orderNumber"`
+	ImgUrl      string      `json:"imgUrl"`
+	Form        string      `json:"form"`
+	PayDataDto  interface{} `json:"payDataDto"`
+	PayUrl      string      `json:"payUrl"`
 }
 
 type QueryOrder struct {
