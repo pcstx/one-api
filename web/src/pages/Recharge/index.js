@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Button, Form, Header, Segment, Statistic,Message,Confirm, FormGroup,Label,Image,Tab,Container } from 'semantic-ui-react';
 import { API, showError, showWarning, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render'; 
-import { getCookie, isH5,isMiniProgram } from '../../helpers/utils'
+import { getCookie, isH5,isMiniProgram,isWechat } from '../../helpers/utils'
 import Script from 'react-load-script';
 
 const Recharge = () => {
@@ -96,6 +96,52 @@ const Recharge = () => {
           let data = JSON.parse(user);
           window.wx.miniProgram.navigateTo({url: '/pages/redirect/redirect?orderPrice='+ orderPrice*1.0 +'&perkAIUserId='+ data.id})
         }
+      } else if(isH5(_userAgent)){
+        if (isWechat(_userAgent)) {
+          const res = await API.post('/api/user/cashRecharge', {
+            orderPrice: orderPrice*1.0,
+            payType: 6
+          });
+          const { success, message, data } = res.data;
+          if (success) {
+            const { appId, nonceStr, paySign, prepayId, signType, timeStamp, _package } = data.payDataDto || {}
+            window.wx.chooseWXPay({
+                timestamp: timeStamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+                nonceStr, // 支付签名随机串，不长于 32 位
+                package: _package, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=\*\*\*）
+                signType, // 微信支付V3的传入RSA,微信支付V2的传入格式与V2统一下单的签名格式保持一致
+                paySign, // 支付签名
+                appId,
+                success: function (r) {
+                    //支付成功
+                    if (r.errMsg == "chooseWXPay:ok") {
+                      showSuccess('支付成功！');
+                      getUserQuota()
+                    } else {
+                        //支付失败
+                        showError('支付失败！');
+                    }
+                },
+                fail: function (r) {
+                    //支付失败
+                    showError(r.errMsg ||'请求支付失败，稍后重新尝试！' )
+                }
+            })
+          } else {
+            showError(message);
+          } 
+        } else {
+          const res = await API.post('/api/user/cashRecharge', {
+            orderPrice: orderPrice*1.0,
+            payType: 2
+          });
+          const { success, message, data } = res.data;
+          if (success) {
+            window.location.href = data.payUrl;             
+          } else {
+            showError(message);
+          }
+        }
       } else{
         const res = await API.post('/api/user/cashRecharge', {
           orderPrice: orderPrice*1.0,
@@ -180,7 +226,7 @@ const Recharge = () => {
   }
 
   const initWeChatSDK = async () => {
-    let res = await API.get(`https://www.pushplus.plus/api/customer/wxApi/jsApi?url=pay.html`,{
+    let res = await API.get(`https://www.pushplus.plus/api/customer/wxApi/jsApi?url=https://perkai.pushplus.plus/recharge`,{
       headers: { "pushToken": getCookie('pushToken')}
     })
     const {code, msg, data} = res.data;
