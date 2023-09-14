@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button, Form, Header, Segment, Statistic,Message,Confirm, FormGroup,Label,Image,Tab,Container } from 'semantic-ui-react';
 import { API, showError, showWarning, showSuccess } from '../../helpers';
 import { renderQuota } from '../../helpers/render'; 
@@ -15,7 +15,8 @@ const Recharge = () => {
   const [open,setOpen] = useState(false);
   const [logo,setLogo] = useState('')
   const [hideImg,setHideImg] = useState(true)
-  const [query, setQuery] = useState(null);
+ // const [query, setQuery] = useState(null);
+ const intervalRef = useRef(); 
 
   let orderNumber=''
   let count = 199;
@@ -105,12 +106,13 @@ const Recharge = () => {
           setLogo(data.imgUrl)      
           setHideImg(false)
           //循环查询
-          if(query){
-            clearInterval(query)
+          if(intervalRef.current){
+            clearInterval(intervalRef.current)
           }
-          setQuery(setInterval(() => {
+          const id  = setInterval(() => {
             queryOrder()
-          }, 3000))
+          }, 3000);
+          intervalRef.current = id;
         } else {
           showError(message);
         }
@@ -150,7 +152,7 @@ const Recharge = () => {
       if(data && data.orderStatus===1){
         //停止查询
         //增加金额
-        clearInterval(query)
+        clearInterval(intervalRef.current)
         showSuccess('充值成功！');
         setHideImg(true)
         setUserQuota((quota) => {
@@ -158,19 +160,19 @@ const Recharge = () => {
         });
       } else if(data && data.orderStatus === -1){
         //支付取消了
-        clearInterval(query)
+        clearInterval(intervalRef.current)
         showSuccess('支付已取消！');
         setHideImg(true)
       }
     } else {
-      clearInterval(query)
+      clearInterval(intervalRef.current)
       showError(message);
     }
     //循环超过次数
     if (count > 0) {
         count--;
     } else {    
-        clearInterval(query);
+        clearInterval(intervalRef.current);
         showError('支付超时！')
         setHideImg(true);
     }
@@ -210,11 +212,11 @@ const Recharge = () => {
 
     return () => { 
       //清空定时器
-      if (query) {
-        clearInterval(query)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
       }
     };
-  }, [query]);
+  }, []);
 
   const Cash = () => {
     return (
