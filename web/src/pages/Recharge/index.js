@@ -96,7 +96,8 @@ const Recharge = () => {
         }
       } else{
         const res = await API.post('/api/user/cashRecharge', {
-          orderPrice: orderPrice*1.0
+          orderPrice: orderPrice*1.0,
+          payType: 0
         });
         const { success, message, data } = res.data;
         if (success) {

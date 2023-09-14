@@ -411,7 +411,7 @@ func (con PushplusController) TokenOrder(c *gin.Context) {
 // 调用pushplus下单
 func perkAIOrder(perkAIOrder *PerkAIOrder) (*PayData, error) {
 	url := fmt.Sprintf("%s/customer/pay/perkAIOrder", common.PushPlusApiUrl)
-	perkAIOrder.PayType = 0
+	//perkAIOrder.PayType = 0
 	result, err := common.HttpPost[PayData](url, perkAIOrder, perkAIOrder.Token)
 	if err != nil {
 		fmt.Println(err.Error())
