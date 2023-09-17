@@ -11,3 +11,5 @@ README.md
 web/build/asset-manifest.json
 web/build/index.html
 common/valid.go
+
+logs
