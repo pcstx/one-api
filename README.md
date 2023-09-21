@@ -378,3 +378,15 @@ https://openai.justsong.cn
 同样适用于基于本项目的二开项目。
 
 依据 MIT 协议，使用者需自行承担使用本项目的风险与责任，本开源项目开发者与此无关。
+
+
+## 
+前端判断是否登录通过PrivateRoute方法中，判断localStore中是否有user。没有的直接跳转登录页面
+
+
+docker build --platform linux/amd64 --pull --rm -f "Dockerfile" -t registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:69 . 
+docker push registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:69
+
+docker run --name=perkai-api -d -e "SQL_DSN=root:uHX1OSY26430@tcp(mysql:3306)/one-api" -e REDIS_CONN_STRING=redis://default:DaoKe0712@redis:6379 -e SYNC_FREQUENCY=10 -e TZ=Asia/Shanghai -v /data/perkai-api/logs:/app/logs -v /data/perkai-api/data:/data -p 3002:3000 --restart=always  registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:60
+
+docker pull registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:69
