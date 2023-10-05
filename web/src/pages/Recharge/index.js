@@ -6,8 +6,8 @@ import { getCookie, isH5,isMiniProgram,isWechat } from '../../helpers/utils'
 import Script from 'react-load-script';
 
 const Recharge = () => {
-  const [redemptionCode, setRedemptionCode] = useState(100);
-  const [orderPrice,setOrderPrice] = useState(1);
+  const [redemptionCode, setRedemptionCode] = useState(1000);
+  const [orderPrice,setOrderPrice] = useState(10);
   const [topUpLink, setTopUpLink] = useState('');
   const [userQuota, setUserQuota] = useState(0);
   const [userPoint, setUserPoint] = useState(0);
