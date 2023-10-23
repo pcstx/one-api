@@ -24,15 +24,15 @@ const EditToken = () => {
     setInputs((inputs) => ({ ...inputs, [name]: value }));
   };
 
-  // const getUserQuota = async ()=>{
-  //   let res  = await API.get(`/api/user/point`);
-  //   const {success, message, data} = res.data;
-  //   if (success) {
-  //     setUserQuota(data.quota);
-  //   } else {
-  //     showError(message);
-  //   }
-  // }
+  const getUserQuota = async ()=>{
+    let res  = await API.get(`/api/user/point`);
+    const {success, message, data} = res.data;
+    if (success) {
+      setUserQuota(data.quota);
+    } else {
+      showError(message);
+    }
+  }
   const handleCancel = () => {
     navigate("/token");
   }
@@ -72,6 +72,7 @@ const EditToken = () => {
     if (isEdit) {
       loadToken().then();
     }
+    getUserQuota().then();
   }, []);
 
   //  const back = () => {
