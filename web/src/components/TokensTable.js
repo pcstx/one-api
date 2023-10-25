@@ -102,7 +102,7 @@ const TokensTable = () => {
     let nextUrl;
   
     if (nextLink) {
-      nextUrl = nextLink + `/#/?settings={"key":"sp-${key}"}`;
+      nextUrl = nextLink + `/#/?settings={"key":"sp-${key}","url":"${serverAddress}"}`;
     } else {
       nextUrl = `https://chat.oneapi.pro/#/?settings={"key":"sp-${key}","url":"${serverAddress}"}`;
     }
