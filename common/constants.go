@@ -22,7 +22,6 @@ var DisplayTokenStatEnabled = true
 // Any options with "Secret", "Token" in its key won't be return by GetOptions
 
 var SessionSecret = "9a866caba322206524583c175093ddba"
-var SQLitePath = "one-api.db"
 
 var OptionMap map[string]string
 var OptionMapRWMutex sync.RWMutex
