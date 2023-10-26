@@ -42,6 +42,7 @@ func chooseDB() (*gorm.DB, error) {
 		if strings.HasPrefix(dsn, "postgres://") {
 			// Use PostgreSQL
 			common.SysLog("using PostgreSQL as database")
+			common.UsingPostgreSQL = true
 			return gorm.Open(postgres.New(postgres.Config{
 				DSN:                  dsn,
 				PreferSimpleProtocol: true, // disables implicit prepared statement usage
@@ -81,6 +82,7 @@ func InitDB() (err error) {
 		if !common.IsMasterNode {
 			return nil
 		}
+		common.SysLog("database migration started")
 		err = db.AutoMigrate(&Channel{})
 		if err != nil {
 			return err

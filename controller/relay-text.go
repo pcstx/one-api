@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 const (
@@ -24,13 +25,21 @@ const (
 	APITypeAli
 	APITypeXunfei
 	APITypeAIProxyLibrary
+	APITypeTencent
 )
 
 var httpClient *http.Client
 var impatientHTTPClient *http.Client
 
 func init() {
-	httpClient = &http.Client{}
+	if common.RelayTimeout == 0 {
+		httpClient = &http.Client{}
+	} else {
+		httpClient = &http.Client{
+			Timeout: time.Duration(common.RelayTimeout) * time.Second,
+		}
+	}
+
 	impatientHTTPClient = &http.Client{
 		Timeout: 5 * time.Second,
 	}
@@ -109,13 +118,15 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		apiType = APITypeXunfei
 	case common.ChannelTypeAIProxyLibrary:
 		apiType = APITypeAIProxyLibrary
+	case common.ChannelTypeTencent:
+		apiType = APITypeTencent
 	}
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
 	if c.GetString("base_url") != "" {
 		baseURL = c.GetString("base_url")
 	}
-	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
+	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
 	switch apiType {
 	case APITypeOpenAI:
 		if channelType == common.ChannelTypeAzure {
@@ -148,6 +159,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions"
 		case "ERNIE-Bot-turbo":
 			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/eb-instant"
+		case "ERNIE-Bot-4":
+			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions_pro"
 		case "BLOOMZ-7B":
 			fullRequestURL = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/bloomz_7b1"
 		case "Embedding-V1":
@@ -179,6 +192,8 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 		if relayMode == RelayModeEmbeddings {
 			fullRequestURL = "https://dashscope.aliyuncs.com/api/v1/services/embeddings/text-embedding/text-embedding"
 		}
+	case APITypeTencent:
+		fullRequestURL = "https://hunyuan.cloud.tencent.com/hyllm/v1/chat/completions"
 	case APITypeAIProxyLibrary:
 		fullRequestURL = fmt.Sprintf("%s/api/library/ask", baseURL)
 	}
@@ -203,6 +218,9 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 	userQuota, err := model.CacheGetUserQuota(userId)
 	if err != nil {
 		return errorWrapper(err, "get_user_quota_failed", http.StatusInternalServerError)
+	}
+	if userQuota-preConsumedQuota < 0 {
+		return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
 	}
 	err = model.CacheDecreaseUserQuota(userId, preConsumedQuota)
 	if err != nil {
@@ -282,6 +300,23 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
 		}
 		requestBody = bytes.NewBuffer(jsonStr)
+	case APITypeTencent:
+		apiKey := c.Request.Header.Get("Authorization")
+		apiKey = strings.TrimPrefix(apiKey, "Bearer ")
+		appId, secretId, secretKey, err := parseTencentConfig(apiKey)
+		if err != nil {
+			return errorWrapper(err, "invalid_tencent_config", http.StatusInternalServerError)
+		}
+		tencentRequest := requestOpenAI2Tencent(textRequest)
+		tencentRequest.AppId = appId
+		tencentRequest.SecretId = secretId
+		jsonStr, err := json.Marshal(tencentRequest)
+		if err != nil {
+			return errorWrapper(err, "marshal_text_request_failed", http.StatusInternalServerError)
+		}
+		sign := getTencentSign(*tencentRequest, secretKey)
+		c.Request.Header.Set("Authorization", sign)
+		requestBody = bytes.NewBuffer(jsonStr)
 	case APITypeAIProxyLibrary:
 		aiProxyLibraryRequest := requestOpenAI2AIProxyLibrary(textRequest)
 		aiProxyLibraryRequest.LibraryId = c.GetString("library_id")
@@ -329,11 +364,16 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			if textRequest.Stream {
 				req.Header.Set("X-DashScope-SSE", "enable")
 			}
+		case APITypeTencent:
+			req.Header.Set("Authorization", apiKey)
 		default:
 			req.Header.Set("Authorization", "Bearer "+apiKey)
 		}
 		req.Header.Set("Content-Type", c.Request.Header.Get("Content-Type"))
 		req.Header.Set("Accept", c.Request.Header.Get("Accept"))
+		if isStream && c.Request.Header.Get("Accept") == "" {
+			req.Header.Set("Accept", "text/event-stream")
+		}
 		//req.Header.Set("Connection", c.Request.Header.Get("Connection"))
 		resp, err = httpClient.Do(req)
 		if err != nil {
@@ -573,6 +613,25 @@ func relayTextHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
 			return nil
 		} else {
 			err, usage := aiProxyLibraryHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			if usage != nil {
+				textResponse.Usage = *usage
+			}
+			return nil
+		}
+	case APITypeTencent:
+		if isStream {
+			err, responseText := tencentStreamHandler(c, resp)
+			if err != nil {
+				return err
+			}
+			textResponse.Usage.PromptTokens = promptTokens
+			textResponse.Usage.CompletionTokens = countTokenText(responseText, textRequest.Model)
+			return nil
+		} else {
+			err, usage := tencentHandler(c, resp)
 			if err != nil {
 				return err
 			}

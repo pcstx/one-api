@@ -6,12 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"one-api/common"
 	"one-api/model"
-
-	"github.com/gin-gonic/gin"
 )
 
 func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode {
@@ -61,16 +60,12 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 			isModelMapped = true
 		}
 	}
-
 	baseURL := common.ChannelBaseURLs[channelType]
 	requestURL := c.Request.URL.String()
-
 	if c.GetString("base_url") != "" {
 		baseURL = c.GetString("base_url")
 	}
-
-	fullRequestURL := fmt.Sprintf("%s%s", baseURL, requestURL)
-
+	fullRequestURL := getFullRequestURL(baseURL, requestURL, channelType)
 	var requestBody io.Reader
 	if isModelMapped {
 		jsonStr, err := json.Marshal(imageRequest)
@@ -99,7 +94,7 @@ func relayImageHelper(c *gin.Context, relayMode int) *OpenAIErrorWithStatusCode 
 	quota := int(ratio*sizeRatio*1000) * imageRequest.N
 
 	if consumeQuota && userQuota-quota < 0 {
-		return errorWrapper(err, "insufficient_user_quota", http.StatusForbidden)
+		return errorWrapper(errors.New("user quota is not enough"), "insufficient_user_quota", http.StatusForbidden)
 	}
 
 	req, err := http.NewRequest(c.Request.Method, fullRequestURL, requestBody)

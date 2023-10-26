@@ -144,7 +144,7 @@ const TokensTable = () => {
     let defaultUrl;
   
     if (chatLink) {
-      defaultUrl = chatLink + `/#/?settings={"key":"sp-${key}"}`;
+      defaultUrl = chatLink + `/#/?settings={"key":"sp-${key}","url":"${serverAddress}"}`;
     } else {
       defaultUrl = `https://chat.oneapi.pro/#/?settings={"key":"sp-${key}","url":"${serverAddress}"}`;
     }
