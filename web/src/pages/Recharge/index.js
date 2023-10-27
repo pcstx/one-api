@@ -116,7 +116,7 @@ const Recharge = () => {
                 appId,
                 success: function (r) {
                     //支付成功
-                    if (r.errMsg == "chooseWXPay:ok") {
+                    if (r.errMsg === "chooseWXPay:ok") {
                       showSuccess('支付成功！');
                       getUserQuota()
                     } else {
