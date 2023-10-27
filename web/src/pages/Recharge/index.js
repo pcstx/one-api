@@ -39,22 +39,24 @@ const Recharge = () => {
   const closeConfirm = () => {setOpen(false)}
 
   const recharge = async () => {
-    if(redemptionCode<100){
+    const redemptionCodeInt = parseInt(redemptionCode, 10);
+
+    if(redemptionCodeInt<100){
       showError('兑换最低100积分起')
         return;
     }
-    if(redemptionCode>userPoint){
+    if(redemptionCodeInt>userPoint){
       showError('积分不足,请充值积分')
       return;
     }
-    if(redemptionCode>1000000){
+    if(redemptionCodeInt>1000000){
       showError('兑换最高100万积分')
       return;
     }
     setIsSubmitting(true);
     try {
       const res = await API.post('/api/user/recharge', {
-        point: redemptionCode
+        point: redemptionCodeInt
       });
       const { success, message, data } = res.data;
       if (success) {
