@@ -60,7 +60,7 @@ const EditChannel = () => {
       let localModels = [];
       switch (value) {
         case 14:
-          localModels = ['claude-instant-1', 'claude-2'];
+          localModels = ['claude-instant-1', 'claude-2', 'claude-2.0', 'claude-2.1'];
           break;
         case 11:
           localModels = ['PaLM-2'];
@@ -72,7 +72,7 @@ const EditChannel = () => {
           localModels = ['qwen-turbo', 'qwen-plus', 'text-embedding-v1'];
           break;
         case 16:
-          localModels = ['chatglm_pro', 'chatglm_std', 'chatglm_lite'];
+          localModels = ['chatglm_turbo', 'chatglm_pro', 'chatglm_std', 'chatglm_lite'];
           break;
         case 18:
           localModels = ['SparkDesk'];
