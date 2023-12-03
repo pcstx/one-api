@@ -25,6 +25,7 @@ import TopUp from './pages/TopUp';
 import Log from './pages/Log';
 import Chat from './pages/Chat';
 import Recharge from './pages/Recharge';
+import Application from './pages/Application/index.js';
 
 const NewHome   = lazy(() => import('./pages/Home/home.js'));
 const NewAbout = lazy(() => import('./pages/About/home.js'));
@@ -306,6 +307,14 @@ function App() {
         element={
           <Suspense fallback={<Loading></Loading>}>
             <Chat />
+          </Suspense>
+        }
+      />
+      <Route
+        path='/application'
+        element={
+          <Suspense fallback={<Loading></Loading>}>
+            <Application />
           </Suspense>
         }
       />

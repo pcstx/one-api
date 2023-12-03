@@ -19,6 +19,11 @@ let headerButtons = [
     icon: 'comments'
   },
   {
+    name: 'AI应用',
+    to: '/application',
+    icon: 'comments'
+  },
+  {
     name: '渠道',
     to: '/channel',
     icon: 'sitemap',
