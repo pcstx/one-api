@@ -22,22 +22,22 @@ const Application = () => {
         <div class="meta">createImage</div>
         <div class="description">通过简单的文字描述就能生成你想要的图片</div>
       </div>
-      <a href='https://app.perkai.pushplus.plus' target='_blank'>
+      <a href='http://perkai.pushplus.plus/app/tti' target='_blank'>
         <div class="ui bottom attached button"><i class="add icon"></i> 点击使用 </div>
       </a>
     </div>
 
-    {/* <div class="card">
+    <div class="card">
       <div class="content">
         <img class="right floated mini ui image" src="/icon.png"/>
         <div class="header">网页生成器</div>
-        <div class="meta">gpt-4-vision-preview接口</div>
+        <div class="meta">HTML Page Generator</div>
         <div class="description">根据您绘制的线框生成 html 页面</div>
       </div>
-      <a href='https://knowledge.pushplus.plus' target='_blank'>
+      <a href='http://html.pushplus.plus' target='_blank'>
         <div class="ui bottom attached button"><i class="add icon"></i> 点击使用 </div>
       </a>
-    </div> */}
+    </div>
 
     {/* <div class="card">
       <div class="content">

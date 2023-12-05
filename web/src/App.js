@@ -311,7 +311,7 @@ function App() {
         }
       />
       <Route
-        path='/application'
+        path='/tools'
         element={
           <Suspense fallback={<Loading></Loading>}>
             <Application />

@@ -20,7 +20,7 @@ let headerButtons = [
   },
   {
     name: 'AI应用',
-    to: '/application',
+    to: '/tools',
     icon: 'comments'
   },
   {
