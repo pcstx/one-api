@@ -64,7 +64,7 @@ let headerButtons = [
   },
   {
     name: '使用说明',
-    to: '/about',
+    to: 'https://doc.perkai.pushplus.plus/',
     icon: 'info circle'
   }
 ];
@@ -139,6 +139,20 @@ const Header = () => {
 
   const renderButtons = (isMobile) => {
     return headerButtons.map((button) => {
+      if (button.to.startsWith('http')) {
+        // 如果是外部链接，使用 a 标签进行跳转
+        return (
+          <Menu.Item
+            key={button.name}
+            as='a'
+            href={button.to}
+            target='_blank'
+            rel='noopener noreferrer'
+          >
+            {button.name}
+          </Menu.Item>
+        );
+      }
       if (button.admin && !isAdmin()) return <></>;
       if (isMobile) {
         return (
