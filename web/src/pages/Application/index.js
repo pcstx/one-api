@@ -39,6 +39,18 @@ const Application = () => {
       </a>
     </div>
 
+    <div class="card">
+      <div class="content">
+        <img class="right floated mini ui image" src="/icon.png"/>
+        <div class="header">AI翻译</div>
+        <div class="meta">Multilingual translation</div>
+        <div class="description">在线多语种翻译</div>
+      </div>
+      <a href='https://perkai.pushplus.plus/app/translate' target='_blank'>
+        <div class="ui bottom attached button"><i class="add icon"></i> 点击使用 </div>
+      </a>
+    </div>
+
     {/* <div class="card">
       <div class="content">
         <img class="right floated mini ui image" src="/icon.png"/>

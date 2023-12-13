@@ -434,9 +434,24 @@ https://openai.justsong.cn
 前端判断是否登录通过PrivateRoute方法中，判断localStore中是否有user。没有的直接跳转登录页面
 
 
-docker build --platform linux/amd64 --pull --rm -f "Dockerfile" -t registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:84 . 
-docker push registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:84
+docker build --platform linux/amd64 --pull --rm -f "Dockerfile" -t registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89 . 
+docker push registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89
 
-docker run --name=perkai-api -d -e "SQL_DSN=root:uHX1OSY26430@tcp(mysql:3306)/one-api" -e REDIS_CONN_STRING=redis://default:DaoKe0712@redis:6379 -e SYNC_FREQUENCY=10 -e TZ=Asia/Shanghai -v /data/perkai-api/logs:/app/logs -v /data/perkai-api/data:/data -p 3002:3000 --restart=always  registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:84
+docker stop perkai-api && docker rm perkai-api && \
+docker run --name=perkai-api -d \
+-e "SQL_DSN=pushplus:y9d&TECSH4CY@tcp(172.20.150.95:3306)/one-api" \
+-e REDIS_CONN_STRING=redis://default:UEBISkVwaHP4m6Tf@172.20.150.95:6379?db=2 \
+-e SYNC_FREQUENCY=10 \
+-e TZ=Asia/Shanghai \
+-v /data/perkai-api/logs:/app/logs \
+-v /data/perkai-api/data:/data \
+-p 3002:3000 \
+--restart=always  registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89
 
-docker pull registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:84
+docker pull registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89
+
+## 手动替换谷歌资源
+使用七牛云资源
+https://image.pushplus.plus/css/google-css2.css
+替换
+https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic&subset=latin
