@@ -37,8 +37,12 @@ function App() {
   const loadUser = () => {
     let user = localStorage.getItem('user');
     if (user) {
-      let data = JSON.parse(user);
-      userDispatch({ type: 'login', payload: data });
+      try{
+        let data = JSON.parse(user);
+        userDispatch({ type: 'login', payload: data });
+      }catch(ex){
+        return false;
+      }
     }
     
         //通过cookie判断是否已经登录，如果登录通过异步接口获取用户信息

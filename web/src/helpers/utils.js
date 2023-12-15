@@ -9,14 +9,22 @@ export default HTMLToastContent;
 export function isAdmin() {
   let user = localStorage.getItem('user');
   if (!user) return false;
-  user = JSON.parse(user);
+  try{
+    user = JSON.parse(user);
+  } catch(ex){
+    return false;
+  }
   return user.role >= 10;
 }
 
 export function isRoot() {
   let user = localStorage.getItem('user');
   if (!user) return false;
-  user = JSON.parse(user);
+  try{
+    user = JSON.parse(user);
+  } catch(ex){
+    return false;
+  }
   return user.role >= 100;
 }
 

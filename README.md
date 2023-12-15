@@ -434,8 +434,8 @@ https://openai.justsong.cn
 前端判断是否登录通过PrivateRoute方法中，判断localStore中是否有user。没有的直接跳转登录页面
 
 
-docker build --platform linux/amd64 --pull --rm -f "Dockerfile" -t registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89 . 
-docker push registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89
+docker build --platform linux/amd64 --pull --rm -f "Dockerfile" -t registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:91 . 
+docker push registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:91
 
 docker stop perkai-api && docker rm perkai-api && \
 docker run --name=perkai-api -d \
@@ -446,9 +446,9 @@ docker run --name=perkai-api -d \
 -v /data/perkai-api/logs:/app/logs \
 -v /data/perkai-api/data:/data \
 -p 3002:3000 \
---restart=always  registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89
+--restart=always  registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:91
 
-docker pull registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:89
+docker pull registry.cn-shanghai.aliyuncs.com/perk-ai/one-api:91
 
 ## 手动替换谷歌资源
 使用七牛云资源

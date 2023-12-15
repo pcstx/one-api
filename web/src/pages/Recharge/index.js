@@ -95,8 +95,12 @@ const Recharge = () => {
       if(isMiniProgram(_userAgent)){
         let user = localStorage.getItem('user');
         if (user) {
-          let data = JSON.parse(user);
-          window.wx.miniProgram.navigateTo({url: '/pages/redirect/redirect?orderPrice='+ orderPrice*1.0 +'&perkAIUserId='+ data.id})
+          try{
+            let data = JSON.parse(user);
+            window.wx.miniProgram.navigateTo({url: '/pages/redirect/redirect?orderPrice='+ orderPrice*1.0 +'&perkAIUserId='+ data.id})
+          } catch(ex){
+              
+          }
         }
       } else if(isH5(_userAgent)){
         if (isWechat(_userAgent)) {
