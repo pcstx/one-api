@@ -110,7 +110,7 @@ const Application = () => {
         <div class="meta">wechat</div>
         <div class="description">微信消息辅助机器人,可以通过接口主动的让微信下发消息。</div>
       </div>
-      <a href='https://bot.pushplus.plus' target='_blank'>
+      <a href='https://www.weplusbot.com' target='_blank'>
         <div class="ui bottom attached button"><i class="add icon"></i> 点击使用 </div>
       </a>
     </div>
